@@ -1,3 +1,7 @@
+# No need to commit .idea files; project can be re-imported from build.gradle.
+.idea/*
+!.idea/codeStyles/
+
 .gradle
 /build/
 /out/

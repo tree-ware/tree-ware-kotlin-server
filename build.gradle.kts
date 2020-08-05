@@ -8,6 +8,7 @@ val ktorVersion = "1.3.2"
 
 val log4j2Version = "2.12.1"
 
+val cassandraUnitVersion = "4.3.1.0"
 val junitVersion = "5.4.2"
 
 plugins {
@@ -40,6 +41,7 @@ dependencies {
     testImplementation(testFixtures(project(":tree-ware-kotlin-cassandra")))
     testImplementation(testFixtures(project(":tree-ware-kotlin-core")))
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
+    testImplementation("org.cassandraunit:cassandra-unit:$cassandraUnitVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:$kotlinVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 }

@@ -1,5 +1,6 @@
 package org.tree_ware.server.ktor
 
+import com.datastax.oss.driver.api.core.CqlSession
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.request.receiveStream
@@ -12,8 +13,13 @@ import org.tree_ware.schema.core.MutableSchema
 import org.tree_ware.server.common.TreeWareServer
 import java.io.InputStreamReader
 
-fun Application.treeWareModule(schema: MutableSchema, schemaMap: MutableSchemaMap, logSchemaFullNames: Boolean) {
-    val treeWareServer = TreeWareServer(schema, schemaMap, logSchemaFullNames)
+fun Application.treeWareModule(
+    schema: MutableSchema,
+    schemaMap: MutableSchemaMap,
+    cqlSession: CqlSession,
+    logSchemaFullNames: Boolean
+) {
+    val treeWareServer = TreeWareServer(schema, schemaMap, cqlSession, logSchemaFullNames)
     if (!treeWareServer.isValid) return
 
     val rootName = snakeCaseToKebabCase(schema.root.name)

@@ -1,7 +1,11 @@
 package org.tree_ware.server.common
 
+import com.datastax.oss.driver.api.core.CqlSession
+import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.LogManager
+import org.tree_ware.cassandra.db.encodeCreateDbSchema
 import org.tree_ware.cassandra.schema.map.MutableSchemaMap
+import org.tree_ware.cassandra.util.executeQueries
 import org.tree_ware.model.codec.decodeJson
 import org.tree_ware.model.codec.encodeJson
 import org.tree_ware.schema.core.MutableSchema
@@ -11,6 +15,7 @@ import java.io.Writer
 class TreeWareServer(
     private val schema: MutableSchema,
     private val schemaMap: MutableSchemaMap,
+    private val cqlSession: CqlSession,
     logSchemaFullNames: Boolean
 ) {
     private val logger = LogManager.getLogger()
@@ -38,8 +43,17 @@ class TreeWareServer(
 
     val isValid = isValidSchema && isValidSchemaMap
 
+    init {
+        if (isValid) runBlocking { initializeCassandra() }
+    }
+
     fun echo(request: Reader, response: Writer) {
         val model = decodeJson<Unit>(request, schema, "data") { null }
         if (model != null) encodeJson(model, null, response, true)
+    }
+
+    private suspend fun initializeCassandra() {
+        val createDbCommands = encodeCreateDbSchema("test", schemaMap)
+        executeQueries(cqlSession, createDbCommands)
     }
 }

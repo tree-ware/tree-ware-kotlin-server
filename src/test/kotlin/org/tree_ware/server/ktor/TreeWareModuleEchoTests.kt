@@ -31,7 +31,7 @@ class TreeWareModuleEchoTests {
         val modelJsonReader = getFileReader("db/address_book_write_request.json")
         assertNotNull(modelJsonReader)
         val modelJson = modelJsonReader.readText()
-        val echoRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/address-book/echo") {
+        val echoRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/echo/address-book") {
             setBody(modelJson)
         }
         with(echoRequest) {

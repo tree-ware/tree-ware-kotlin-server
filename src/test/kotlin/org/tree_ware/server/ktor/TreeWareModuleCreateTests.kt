@@ -31,7 +31,7 @@ class TreeWareModuleCreateTests {
         val modelJsonReader = getFileReader("db/address_book_write_request.json")
         assertNotNull(modelJsonReader)
         val modelJson = modelJsonReader.readText()
-        val createRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/address-book/create") {
+        val createRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/create/address-book") {
             setBody(modelJson)
         }
         with(createRequest) {

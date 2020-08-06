@@ -26,13 +26,13 @@ fun Application.treeWareModule(
     val rootName = snakeCaseToKebabCase(schema.root.name)
 
     routing {
-        route("/tree-ware/api/$rootName") {
-            post("echo") {
+        route("/tree-ware/api") {
+            post("echo/$rootName") {
                 // TODO(deepak-nulu): load-test to ensure InputStream does not limit concurrency
                 val reader = InputStreamReader(call.receiveStream())
                 call.respondTextWriter { treeWareServer.echo(reader, this) }
             }
-            post("create") {
+            post("create/$rootName") {
                 val reader = InputStreamReader(call.receiveStream())
                 call.respondTextWriter { treeWareServer.create(reader, this) }
             }

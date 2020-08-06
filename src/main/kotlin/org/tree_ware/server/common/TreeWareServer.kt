@@ -4,15 +4,20 @@ import com.datastax.oss.driver.api.core.CqlSession
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.LogManager
 import org.tree_ware.cassandra.db.encodeCreateDbSchema
+import org.tree_ware.cassandra.db.encodeDbModel
+import org.tree_ware.cassandra.schema.map.DbSchemaMapAux
 import org.tree_ware.cassandra.schema.map.MutableSchemaMap
+import org.tree_ware.cassandra.schema.map.asModel
 import org.tree_ware.cassandra.util.executeQueries
 import org.tree_ware.model.codec.decodeJson
 import org.tree_ware.model.codec.encodeJson
+import org.tree_ware.model.core.MutableModel
 import org.tree_ware.schema.core.MutableSchema
 import java.io.Reader
 import java.io.Writer
 
 class TreeWareServer(
+    environment: String,
     private val schema: MutableSchema,
     private val schemaMap: MutableSchemaMap,
     private val cqlSession: CqlSession,
@@ -42,14 +47,24 @@ class TreeWareServer(
     }
 
     val isValid = isValidSchema && isValidSchemaMap
+    private val schemaMapModel: MutableModel<DbSchemaMapAux>? = if (isValid) asModel(environment, schemaMap) else null
 
     init {
         if (isValid) runBlocking { initializeCassandra() }
     }
 
     fun echo(request: Reader, response: Writer) {
+        if (!isValid) return
         val model = decodeJson<Unit>(request, schema, "data") { null }
         if (model != null) encodeJson(model, null, response, true)
+    }
+
+    suspend fun create(request: Reader, response: Writer) {
+        // TODO(deepak-nulu): report errors in `response`
+        if (schemaMapModel == null) return
+        val model = decodeJson<Unit>(request, schema, "data") { null } ?: return
+        val createModelCommands = encodeDbModel(model, schemaMapModel)
+        executeQueries(cqlSession, createModelCommands)
     }
 
     private suspend fun initializeCassandra() {

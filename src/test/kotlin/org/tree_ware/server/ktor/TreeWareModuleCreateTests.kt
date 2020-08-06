@@ -14,7 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class TreeWareModuleEchoTests {
+class TreeWareModuleCreateTests {
     private val schema = newAddressBookSchema()
     private val schemaMap = newAddressBookSchemaMap(schema)
 
@@ -25,18 +25,19 @@ class TreeWareModuleEchoTests {
     private val cqlSession: CqlSession = EmbeddedCassandraServerHelper.getSession()
 
     @Test
-    fun `Echo request is echoed back as response`() = withTestApplication({
+    fun `Create request model is written to DB`() = withTestApplication({
         treeWareModule("test", schema, schemaMap, cqlSession, false)
     }) {
         val modelJsonReader = getFileReader("db/address_book_write_request.json")
         assertNotNull(modelJsonReader)
         val modelJson = modelJsonReader.readText()
-        val echoRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/address-book/echo") {
+        val createRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/address-book/create") {
             setBody(modelJson)
         }
-        with(echoRequest) {
+        with(createRequest) {
             assertEquals(HttpStatusCode.OK, response.status())
-            assertEquals(modelJson, response.content)
+            assertEquals("", response.content)
         }
+        verifyKeyspaceContents("ktor/address_book_db_create_results.txt", cqlSession, "test_tw_address_book")
     }
 }

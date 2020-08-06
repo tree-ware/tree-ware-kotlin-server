@@ -14,12 +14,13 @@ import org.tree_ware.server.common.TreeWareServer
 import java.io.InputStreamReader
 
 fun Application.treeWareModule(
+    environment: String,
     schema: MutableSchema,
     schemaMap: MutableSchemaMap,
     cqlSession: CqlSession,
     logSchemaFullNames: Boolean
 ) {
-    val treeWareServer = TreeWareServer(schema, schemaMap, cqlSession, logSchemaFullNames)
+    val treeWareServer = TreeWareServer(environment, schema, schemaMap, cqlSession, logSchemaFullNames)
     if (!treeWareServer.isValid) return
 
     val rootName = snakeCaseToKebabCase(schema.root.name)
@@ -30,6 +31,10 @@ fun Application.treeWareModule(
                 // TODO(deepak-nulu): load-test to ensure InputStream does not limit concurrency
                 val reader = InputStreamReader(call.receiveStream())
                 call.respondTextWriter { treeWareServer.echo(reader, this) }
+            }
+            post("create") {
+                val reader = InputStreamReader(call.receiveStream())
+                call.respondTextWriter { treeWareServer.create(reader, this) }
             }
         }
     }

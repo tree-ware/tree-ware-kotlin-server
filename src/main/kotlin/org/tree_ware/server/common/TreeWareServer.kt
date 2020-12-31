@@ -59,7 +59,7 @@ class TreeWareServer(
         if (model != null) encodeJson(model, null, response, true)
     }
 
-    suspend fun create(request: Reader, response: Writer) {
+    suspend fun set(request: Reader, response: Writer) {
         // TODO(deepak-nulu): report errors in `response`
         if (schemaMapModel == null) return
         val model = decodeJson<Unit>(request, schema, "data") { null } ?: return

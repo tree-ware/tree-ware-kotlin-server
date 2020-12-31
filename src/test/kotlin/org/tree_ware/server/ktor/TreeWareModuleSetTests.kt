@@ -1,11 +1,8 @@
 package org.tree_ware.server.ktor
 
 import com.datastax.oss.driver.api.core.CqlSession
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.handleRequest
-import io.ktor.server.testing.setBody
-import io.ktor.server.testing.withTestApplication
+import io.ktor.http.*
+import io.ktor.server.testing.*
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper
 import org.tree_ware.cassandra.schema.map.newAddressBookSchema
 import org.tree_ware.cassandra.schema.map.newAddressBookSchemaMap
@@ -14,7 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class TreeWareModuleCreateTests {
+class TreeWareModuleSetTests {
     private val schema = newAddressBookSchema()
     private val schemaMap = newAddressBookSchemaMap(schema)
 
@@ -25,19 +22,19 @@ class TreeWareModuleCreateTests {
     private val cqlSession: CqlSession = EmbeddedCassandraServerHelper.getSession()
 
     @Test
-    fun `Create request model is written to DB`() = withTestApplication({
+    fun `Set request model is written to DB`() = withTestApplication({
         treeWareModule("test", schema, schemaMap, cqlSession, false)
     }) {
         val modelJsonReader = getFileReader("db/address_book_write_request.json")
         assertNotNull(modelJsonReader)
         val modelJson = modelJsonReader.readText()
-        val createRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/create/address-book") {
+        val setRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/set/address-book") {
             setBody(modelJson)
         }
-        with(createRequest) {
+        with(setRequest) {
             assertEquals(HttpStatusCode.OK, response.status())
             assertEquals("", response.content)
         }
-        verifyKeyspaceContents("ktor/address_book_db_create_results.txt", cqlSession, "test_tw_address_book")
+        verifyKeyspaceContents("ktor/address_book_db_set_results.txt", cqlSession, "test_tw_address_book")
     }
 }

@@ -1,13 +1,10 @@
 package org.tree_ware.server.ktor
 
 import com.datastax.oss.driver.api.core.CqlSession
-import io.ktor.application.Application
-import io.ktor.application.call
-import io.ktor.request.receiveStream
-import io.ktor.response.respondTextWriter
-import io.ktor.routing.post
-import io.ktor.routing.route
-import io.ktor.routing.routing
+import io.ktor.application.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.routing.*
 import org.tree_ware.cassandra.schema.map.MutableSchemaMap
 import org.tree_ware.schema.core.MutableSchema
 import org.tree_ware.server.common.TreeWareServer
@@ -32,9 +29,9 @@ fun Application.treeWareModule(
                 val reader = InputStreamReader(call.receiveStream())
                 call.respondTextWriter { treeWareServer.echo(reader, this) }
             }
-            post("create/$rootName") {
+            post("set/$rootName") {
                 val reader = InputStreamReader(call.receiveStream())
-                call.respondTextWriter { treeWareServer.create(reader, this) }
+                call.respondTextWriter { treeWareServer.set(reader, this) }
             }
         }
     }

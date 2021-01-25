@@ -3,12 +3,14 @@ package org.tree_ware.server.common
 import com.datastax.oss.driver.api.core.CqlSession
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.LogManager
+import org.tree_ware.cassandra.db.GetVisitorDelegate
 import org.tree_ware.cassandra.db.encodeCreateDbSchema
 import org.tree_ware.cassandra.db.encodeDbModel
 import org.tree_ware.cassandra.schema.map.DbSchemaMapAux
 import org.tree_ware.cassandra.schema.map.MutableSchemaMap
 import org.tree_ware.cassandra.schema.map.asModel
 import org.tree_ware.cassandra.util.executeQueries
+import org.tree_ware.model.action.CompositionTableGetVisitor
 import org.tree_ware.model.codec.decodeJson
 import org.tree_ware.model.codec.encodeJson
 import org.tree_ware.model.core.MutableModel
@@ -56,6 +58,7 @@ class TreeWareServer(
     fun echo(request: Reader, response: Writer) {
         if (!isValid) return
         val model = decodeJson<Unit>(request, schema, "data") { null }
+        // TODO(deepak-nulu): prettyPrint value from URL query-param
         if (model != null) encodeJson(model, null, response, true)
     }
 
@@ -65,6 +68,17 @@ class TreeWareServer(
         val model = decodeJson<Unit>(request, schema, "data") { null } ?: return
         val createModelCommands = encodeDbModel(model, schemaMapModel)
         executeQueries(cqlSession, createModelCommands)
+    }
+
+    suspend fun get(request: Reader, response: Writer) {
+        // TODO(deepak-nulu): report errors in `response`
+        if (schemaMapModel == null) return
+        val getRequest = decodeJson<Unit>(request, schema, "data") { null } ?: return
+        val delegate = GetVisitorDelegate(cqlSession)
+        val visitor = CompositionTableGetVisitor(delegate)
+        val getResponse = org.tree_ware.model.action.get(getRequest, schemaMapModel, visitor)
+        // TODO(deepak-nulu): prettyPrint value from URL query-param
+        encodeJson(getResponse, null, response, true)
     }
 
     private suspend fun initializeCassandra() {

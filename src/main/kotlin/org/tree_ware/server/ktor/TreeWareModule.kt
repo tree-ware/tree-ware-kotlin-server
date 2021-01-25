@@ -33,6 +33,10 @@ fun Application.treeWareModule(
                 val reader = InputStreamReader(call.receiveStream())
                 call.respondTextWriter { treeWareServer.set(reader, this) }
             }
+            post("get/$rootName") {
+                val reader = InputStreamReader(call.receiveStream())
+                call.respondTextWriter { treeWareServer.get(reader, this) }
+            }
         }
     }
 }

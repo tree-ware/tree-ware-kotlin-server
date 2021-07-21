@@ -1,4 +1,4 @@
-package org.tree_ware.server.ktor
+package org.treeWare.server.ktor
 
 import io.ktor.application.Application
 import io.ktor.application.call

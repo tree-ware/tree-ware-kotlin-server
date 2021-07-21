@@ -1,20 +1,20 @@
-package org.tree_ware.server.common
+package org.treeWare.server.common
 
 import com.datastax.oss.driver.api.core.CqlSession
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.LogManager
-import org.tree_ware.cassandra.db.GetVisitorDelegate
-import org.tree_ware.cassandra.db.encodeCreateDbSchema
-import org.tree_ware.cassandra.db.encodeDbModel
-import org.tree_ware.cassandra.schema.map.DbSchemaMapAux
-import org.tree_ware.cassandra.schema.map.MutableSchemaMap
-import org.tree_ware.cassandra.schema.map.asModel
-import org.tree_ware.cassandra.util.executeQueries
-import org.tree_ware.model.action.CompositionTableGetVisitor
-import org.tree_ware.model.codec.decodeJson
-import org.tree_ware.model.codec.encodeJson
-import org.tree_ware.model.core.MutableModel
-import org.tree_ware.schema.core.MutableSchema
+import org.treeWare.cassandra.db.GetVisitorDelegate
+import org.treeWare.cassandra.db.encodeCreateDbSchema
+import org.treeWare.cassandra.db.encodeDbModel
+import org.treeWare.cassandra.schema.map.DbSchemaMapAux
+import org.treeWare.cassandra.schema.map.MutableSchemaMap
+import org.treeWare.cassandra.schema.map.asModel
+import org.treeWare.cassandra.util.executeQueries
+import org.treeWare.model.action.CompositionTableGetVisitor
+import org.treeWare.model.codec.decodeJson
+import org.treeWare.model.codec.encodeJson
+import org.treeWare.model.core.MutableModel
+import org.treeWare.schema.core.MutableSchema
 import java.io.Reader
 import java.io.Writer
 
@@ -32,7 +32,7 @@ class TreeWareServer(
 
     // Validate the schema.
     init {
-        val schemaErrors = org.tree_ware.schema.core.validate(schema, logSchemaFullNames)
+        val schemaErrors = org.treeWare.schema.core.validate(schema, logSchemaFullNames)
         isValidSchema = schemaErrors.isEmpty()
         if (schemaErrors.isNotEmpty()) {
             schemaErrors.forEach { logger.error(it) }
@@ -41,7 +41,7 @@ class TreeWareServer(
 
     // Validate the schema-map.
     init {
-        val schemaMapErrors = org.tree_ware.cassandra.schema.map.validate(schemaMap)
+        val schemaMapErrors = org.treeWare.cassandra.schema.map.validate(schemaMap)
         isValidSchemaMap = schemaMapErrors.isEmpty()
         if (schemaMapErrors.isNotEmpty()) {
             schemaMapErrors.forEach { logger.error(it) }
@@ -76,7 +76,7 @@ class TreeWareServer(
         val getRequest = decodeJson<Unit>(request, schema, "data") { null } ?: return
         val delegate = GetVisitorDelegate(cqlSession)
         val visitor = CompositionTableGetVisitor(delegate)
-        val getResponse = org.tree_ware.model.action.get(getRequest, schemaMapModel, visitor)
+        val getResponse = org.treeWare.model.action.get(getRequest, schemaMapModel, visitor)
         // TODO(deepak-nulu): prettyPrint value from URL query-param
         encodeJson(getResponse, null, response, true)
     }

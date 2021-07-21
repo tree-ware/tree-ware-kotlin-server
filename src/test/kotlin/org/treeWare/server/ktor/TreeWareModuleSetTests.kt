@@ -1,12 +1,12 @@
-package org.tree_ware.server.ktor
+package org.treeWare.server.ktor
 
 import com.datastax.oss.driver.api.core.CqlSession
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper
-import org.tree_ware.cassandra.schema.map.newAddressBookSchema
-import org.tree_ware.cassandra.schema.map.newAddressBookSchemaMap
-import org.tree_ware.model.readFile
+import org.treeWare.cassandra.schema.map.newAddressBookSchema
+import org.treeWare.cassandra.schema.map.newAddressBookSchemaMap
+import org.treeWare.model.readFile
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

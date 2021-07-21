@@ -1,8 +1,8 @@
-package org.tree_ware.server.ktor
+package org.treeWare.server.ktor
 
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.cql.ResultSet
-import org.tree_ware.model.getFileReader
+import org.treeWare.model.getFileReader
 import java.io.StringWriter
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

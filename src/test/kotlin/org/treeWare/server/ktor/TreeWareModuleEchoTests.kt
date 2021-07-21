@@ -1,4 +1,4 @@
-package org.tree_ware.server.ktor
+package org.treeWare.server.ktor
 
 import com.datastax.oss.driver.api.core.CqlSession
 import io.ktor.http.HttpMethod
@@ -7,9 +7,9 @@ import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
 import io.ktor.server.testing.withTestApplication
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper
-import org.tree_ware.cassandra.schema.map.newAddressBookSchema
-import org.tree_ware.cassandra.schema.map.newAddressBookSchemaMap
-import org.tree_ware.model.getFileReader
+import org.treeWare.cassandra.schema.map.newAddressBookSchema
+import org.treeWare.cassandra.schema.map.newAddressBookSchemaMap
+import org.treeWare.model.getFileReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

@@ -1,13 +1,13 @@
-package org.tree_ware.server.ktor
+package org.treeWare.server.ktor
 
 import com.datastax.oss.driver.api.core.CqlSession
 import io.ktor.application.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import org.tree_ware.cassandra.schema.map.MutableSchemaMap
-import org.tree_ware.schema.core.MutableSchema
-import org.tree_ware.server.common.TreeWareServer
+import org.treeWare.cassandra.schema.map.MutableSchemaMap
+import org.treeWare.schema.core.MutableSchema
+import org.treeWare.server.common.TreeWareServer
 import java.io.InputStreamReader
 
 fun Application.treeWareModule(

@@ -3,16 +3,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "org.tree-ware"
 version = "1.0-SNAPSHOT"
 
-val kotlinVersion = "1.3.72"
-val ktorVersion = "1.3.2"
+val ktorVersion = "1.6.1"
 
-val log4j2Version = "2.12.1"
+val log4j2Version = "2.14.1"
 
 val cassandraUnitVersion = "4.3.1.0"
-val junitVersion = "5.4.2"
 
 plugins {
-    id("org.jetbrains.kotlin.jvm").version("1.3.72")
+    id("org.jetbrains.kotlin.jvm").version("1.5.21")
     id("idea")
     id("java-library")
 }
@@ -31,7 +29,7 @@ dependencies {
     implementation(project(":tree-ware-kotlin-core"))
     implementation(project(":tree-ware-kotlin-cassandra"))
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    implementation(kotlin("stdlib"))
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
 
@@ -42,10 +40,9 @@ dependencies {
     testImplementation(testFixtures(project(":tree-ware-kotlin-core")))
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("org.cassandraunit:cassandra-unit:$cassandraUnitVersion")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:$kotlinVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
+    testImplementation(kotlin("test"))
 }
 
-tasks.withType<Test> {
+tasks.test {
     useJUnitPlatform()
 }

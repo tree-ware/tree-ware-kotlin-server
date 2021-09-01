@@ -1,2 +1,0 @@
-[keyspace_name:'test_tw_address_book', type_name:'/address_book/city_info', field_names:['/city_info/city/country','/city_info/city/state','/city_info/city/name'], field_types:['text','text','text']]
-[keyspace_name:'test_tw_address_book', type_name:'/address_book/person', field_names:['/person/id'], field_types:['uuid']]

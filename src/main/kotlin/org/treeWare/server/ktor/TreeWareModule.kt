@@ -1,26 +1,19 @@
 package org.treeWare.server.ktor
 
-import com.datastax.oss.driver.api.core.CqlSession
 import io.ktor.application.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import org.treeWare.cassandra.schema.map.MutableSchemaMap
-import org.treeWare.schema.core.MutableSchema
 import org.treeWare.server.common.TreeWareServer
 import java.io.InputStreamReader
 
 fun Application.treeWareModule(
     environment: String,
-    schema: MutableSchema,
-    schemaMap: MutableSchemaMap,
-    cqlSession: CqlSession,
-    logSchemaFullNames: Boolean
+    metaModelFilePath: String,
+    logMetaModelFullNames: Boolean
 ) {
-    val treeWareServer = TreeWareServer(environment, schema, schemaMap, cqlSession, logSchemaFullNames)
-    if (!treeWareServer.isValid) return
-
-    val rootName = snakeCaseToKebabCase(schema.root.name)
+    val treeWareServer = TreeWareServer(environment, metaModelFilePath, logMetaModelFullNames)
+    val rootName = snakeCaseToKebabCase(treeWareServer.rootName)
 
     routing {
         route("/tree-ware/api") {
@@ -28,14 +21,6 @@ fun Application.treeWareModule(
                 // TODO(deepak-nulu): load-test to ensure InputStream does not limit concurrency
                 val reader = InputStreamReader(call.receiveStream())
                 call.respondTextWriter { treeWareServer.echo(reader, this) }
-            }
-            post("set/$rootName") {
-                val reader = InputStreamReader(call.receiveStream())
-                call.respondTextWriter { treeWareServer.set(reader, this) }
-            }
-            post("get/$rootName") {
-                val reader = InputStreamReader(call.receiveStream())
-                call.respondTextWriter { treeWareServer.get(reader, this) }
             }
         }
     }

@@ -1,34 +1,19 @@
 package org.treeWare.server.ktor
 
-import com.datastax.oss.driver.api.core.CqlSession
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.handleRequest
-import io.ktor.server.testing.setBody
-import io.ktor.server.testing.withTestApplication
-import org.cassandraunit.utils.EmbeddedCassandraServerHelper
-import org.treeWare.cassandra.schema.map.newAddressBookSchema
-import org.treeWare.cassandra.schema.map.newAddressBookSchemaMap
+import io.ktor.http.*
+import io.ktor.server.testing.*
+import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILE_PATH
 import org.treeWare.model.getFileReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class TreeWareModuleEchoTests {
-    private val schema = newAddressBookSchema()
-    private val schemaMap = newAddressBookSchemaMap(schema)
-
-    init {
-        EmbeddedCassandraServerHelper.startEmbeddedCassandra()
-    }
-
-    private val cqlSession: CqlSession = EmbeddedCassandraServerHelper.getSession()
-
     @Test
     fun `Echo request is echoed back as response`() = withTestApplication({
-        treeWareModule("test", schema, schemaMap, cqlSession, false)
+        treeWareModule("test", ADDRESS_BOOK_META_MODEL_FILE_PATH, false)
     }) {
-        val modelJsonReader = getFileReader("db/address_book_write_request.json")
+        val modelJsonReader = getFileReader("model/address_book_1.json")
         assertNotNull(modelJsonReader)
         val modelJson = modelJsonReader.readText()
         val echoRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/echo/address-book") {

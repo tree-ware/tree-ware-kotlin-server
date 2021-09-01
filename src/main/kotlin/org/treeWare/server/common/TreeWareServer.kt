@@ -1,88 +1,44 @@
 package org.treeWare.server.common
 
-import com.datastax.oss.driver.api.core.CqlSession
-import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.LogManager
-import org.treeWare.cassandra.db.GetVisitorDelegate
-import org.treeWare.cassandra.db.encodeCreateDbSchema
-import org.treeWare.cassandra.db.encodeDbModel
-import org.treeWare.cassandra.schema.map.DbSchemaMapAux
-import org.treeWare.cassandra.schema.map.MutableSchemaMap
-import org.treeWare.cassandra.schema.map.asModel
-import org.treeWare.cassandra.util.executeQueries
-import org.treeWare.model.action.CompositionTableGetVisitor
+import org.treeWare.metaModel.getMetaName
+import org.treeWare.metaModel.getRootMeta
+import org.treeWare.metaModel.newMetaMetaModel
+import org.treeWare.metaModel.validation.validate
 import org.treeWare.model.codec.decodeJson
 import org.treeWare.model.codec.encodeJson
-import org.treeWare.model.core.MutableModel
-import org.treeWare.schema.core.MutableSchema
+import org.treeWare.model.core.Model
+import org.treeWare.model.core.Resolved
+import java.io.InputStreamReader
 import java.io.Reader
 import java.io.Writer
 
 class TreeWareServer(
     environment: String,
-    private val schema: MutableSchema,
-    private val schemaMap: MutableSchemaMap,
-    private val cqlSession: CqlSession,
-    logSchemaFullNames: Boolean
+    metaModelFilePath: String,
+    logMetaModelFullNames: Boolean
 ) {
+    internal val rootName: String
+
     private val logger = LogManager.getLogger()
+    private val metaModel: Model<Resolved>
 
-    private val isValidSchema: Boolean
-    private val isValidSchemaMap: Boolean
-
-    // Validate the schema.
+    // Validate the meta-model.
     init {
-        val schemaErrors = org.treeWare.schema.core.validate(schema, logSchemaFullNames)
-        isValidSchema = schemaErrors.isEmpty()
-        if (schemaErrors.isNotEmpty()) {
-            schemaErrors.forEach { logger.error(it) }
-        }
-    }
-
-    // Validate the schema-map.
-    init {
-        val schemaMapErrors = org.treeWare.cassandra.schema.map.validate(schemaMap)
-        isValidSchemaMap = schemaMapErrors.isEmpty()
-        if (schemaMapErrors.isNotEmpty()) {
-            schemaMapErrors.forEach { logger.error(it) }
-        }
-    }
-
-    val isValid = isValidSchema && isValidSchemaMap
-    private val schemaMapModel: MutableModel<DbSchemaMapAux>? = if (isValid) asModel(environment, schemaMap) else null
-
-    init {
-        if (isValid) runBlocking { initializeCassandra() }
+        logger.info("Meta-model file: $metaModelFilePath")
+        val metaMetaModel = newMetaMetaModel()
+        val metaModelReader = ClassLoader.getSystemResourceAsStream(metaModelFilePath)?.let { InputStreamReader(it) }
+            ?: throw IllegalStateException("Meta-model file not found")
+        metaModel = decodeJson(metaModelReader, metaMetaModel, "data") { null }
+            ?: throw IllegalStateException("Unable to decode meta-model file")
+        val metaModelErrors = validate(metaModel, logMetaModelFullNames)
+        if (metaModelErrors.isNotEmpty()) throw IllegalStateException("Meta-model has validation errors")
+        rootName = getMetaName(getRootMeta(metaModel)).also { println("#### rootName: $it") }
     }
 
     fun echo(request: Reader, response: Writer) {
-        if (!isValid) return
-        val model = decodeJson<Unit>(request, schema, "data") { null }
-        // TODO(deepak-nulu): prettyPrint value from URL query-param
+        val model = decodeJson<Unit>(request, metaModel, "data") { null }
+        // TODO(deepak-nulu): get prettyPrint value from URL query-param
         if (model != null) encodeJson(model, null, response, true)
-    }
-
-    suspend fun set(request: Reader, response: Writer) {
-        // TODO(deepak-nulu): report errors in `response`
-        if (schemaMapModel == null) return
-        val model = decodeJson<Unit>(request, schema, "data") { null } ?: return
-        val createModelCommands = encodeDbModel(model, schemaMapModel)
-        executeQueries(cqlSession, createModelCommands)
-    }
-
-    suspend fun get(request: Reader, response: Writer) {
-        // TODO(deepak-nulu): report errors in `response`
-        if (schemaMapModel == null) return
-        val getRequest = decodeJson<Unit>(request, schema, "data") { null } ?: return
-        val delegate = GetVisitorDelegate(cqlSession)
-        val visitor = CompositionTableGetVisitor(delegate)
-        val getResponse = org.treeWare.model.action.get(getRequest, schemaMapModel, visitor)
-        // TODO(deepak-nulu): prettyPrint value from URL query-param
-        encodeJson(getResponse, null, response, true)
-    }
-
-    private suspend fun initializeCassandra() {
-        val createDbCommands = encodeCreateDbSchema("test", schemaMap)
-        executeQueries(cqlSession, createDbCommands)
     }
 }

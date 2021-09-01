@@ -7,8 +7,6 @@ val ktorVersion = "1.6.1"
 
 val log4j2Version = "2.14.1"
 
-val cassandraUnitVersion = "4.3.1.0"
-
 plugins {
     id("org.jetbrains.kotlin.jvm").version("1.5.21")
     id("idea")
@@ -27,7 +25,6 @@ tasks.withType<KotlinCompile> {
 
 dependencies {
     implementation(project(":tree-ware-kotlin-core"))
-    implementation(project(":tree-ware-kotlin-cassandra"))
 
     implementation(kotlin("stdlib"))
 
@@ -36,10 +33,8 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:$log4j2Version")
     implementation("org.apache.logging.log4j:log4j-core:$log4j2Version")
 
-    testImplementation(testFixtures(project(":tree-ware-kotlin-cassandra")))
     testImplementation(testFixtures(project(":tree-ware-kotlin-core")))
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
-    testImplementation("org.cassandraunit:cassandra-unit:$cassandraUnitVersion")
     testImplementation(kotlin("test"))
 }
 

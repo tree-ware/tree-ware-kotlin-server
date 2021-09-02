@@ -33,7 +33,8 @@ class TreeWareServer(
             ?: throw IllegalStateException("Unable to decode meta-model file")
         val metaModelErrors = validate(metaModel, logMetaModelFullNames)
         if (metaModelErrors.isNotEmpty()) throw IllegalStateException("Meta-model has validation errors")
-        rootName = getMetaName(getRootMeta(metaModel)).also { println("#### rootName: $it") }
+        rootName = getMetaName(getRootMeta(metaModel))
+        logger.info("Meta-model root name: $rootName")
     }
 
     fun echo(request: Reader, response: Writer) {

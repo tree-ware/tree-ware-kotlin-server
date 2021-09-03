@@ -5,10 +5,10 @@ import org.treeWare.metaModel.getMetaName
 import org.treeWare.metaModel.getRootMeta
 import org.treeWare.metaModel.newMetaMetaModel
 import org.treeWare.metaModel.validation.validate
-import org.treeWare.model.codec.decodeJson
-import org.treeWare.model.codec.encodeJson
 import org.treeWare.model.core.Model
 import org.treeWare.model.core.Resolved
+import org.treeWare.model.decoder.decodeJson
+import org.treeWare.model.encoder.encodeJson
 import java.io.InputStreamReader
 import java.io.Reader
 import java.io.Writer

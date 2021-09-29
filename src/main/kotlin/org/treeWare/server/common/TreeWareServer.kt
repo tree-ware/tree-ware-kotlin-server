@@ -33,8 +33,12 @@ class TreeWareServer(
         val metaMetaModel = newMainMetaMetaModel()
         val metaModelReader = ClassLoader.getSystemResourceAsStream(metaModelFilePath)?.let { InputStreamReader(it) }
             ?: throw IllegalStateException("Meta-model file not found")
-        metaModel = decodeJson(metaModelReader, metaMetaModel, "data") { null }
-            ?: throw IllegalStateException("Unable to decode meta-model file")
+        val (decodedMetaModel, decodeErrors) = decodeJson<Resolved>(metaModelReader, metaMetaModel, "data") { null }
+        if (decodedMetaModel == null || decodeErrors.isNotEmpty()) {
+            decodeErrors.forEach { logger.error(it) }
+            throw IllegalStateException("Unable to decode meta-model file")
+        }
+        metaModel = decodedMetaModel
         val metaModelErrors = validate(metaModel, hasher, cipher, logMetaModelFullNames)
         if (metaModelErrors.isNotEmpty()) throw IllegalStateException("Meta-model has validation errors")
         rootName = getMetaName(getRootMeta(metaModel))
@@ -42,9 +46,11 @@ class TreeWareServer(
     }
 
     fun echo(request: Reader, response: Writer) {
-        val model = decodeJson<Unit>(request, metaModel, "data") { null }
-        // TODO(deepak-nulu): get prettyPrint value from URL query-param
-        // TODO(deepak-nulu): get encodePasswords value from URL query-param
+        // TODO(deepak-nulu): get expectedModelType value from URL query-param.
+        val (model, decodeErrors) = decodeJson<Unit>(request, metaModel, "data") { null }
+        // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+        // TODO(deepak-nulu): get encodePasswords value from URL query-param.
+        // TODO(deepak-nulu): report decodeErrors once they are in aux form.
         if (model != null) encodeJson(model, null, response, EncodePasswords.ALL, true)
     }
 }

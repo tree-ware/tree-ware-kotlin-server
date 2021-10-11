@@ -9,10 +9,10 @@ import java.io.InputStreamReader
 
 fun Application.treeWareModule(
     environment: String,
-    metaModelFilePath: String,
+    metaModelFiles: List<String>,
     logMetaModelFullNames: Boolean
 ) {
-    val treeWareServer = TreeWareServer(environment, metaModelFilePath, logMetaModelFullNames)
+    val treeWareServer = TreeWareServer(environment, metaModelFiles, logMetaModelFullNames)
     val rootName = snakeCaseToKebabCase(treeWareServer.rootName)
 
     routing {

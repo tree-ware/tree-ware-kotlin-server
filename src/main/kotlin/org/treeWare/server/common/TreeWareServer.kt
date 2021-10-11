@@ -5,7 +5,6 @@ import org.treeWare.metaModel.getMetaName
 import org.treeWare.metaModel.getRootMeta
 import org.treeWare.metaModel.newMainMetaMetaModel
 import org.treeWare.metaModel.validation.validate
-import org.treeWare.model.core.HasherV1
 import org.treeWare.model.core.MainModel
 import org.treeWare.model.core.Resolved
 import org.treeWare.model.decoder.decodeJson
@@ -24,7 +23,7 @@ class TreeWareServer(
 
     private val logger = LogManager.getLogger()
     private val metaModel: MainModel<Resolved>
-    private val hasher = HasherV1()
+    private val hasher = null // TODO(deepak-nulu): create a hasher based on server configuration.
     private val cipher = null // TODO(deepak-nulu): get a secret key from server configuration and create a cipher.
 
     // Validate the meta-model.

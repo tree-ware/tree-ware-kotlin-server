@@ -10,13 +10,14 @@ import org.treeWare.model.core.Resolved
 import org.treeWare.model.decoder.decodeJson
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.encodeJson
+import org.treeWare.model.operator.union
 import java.io.InputStreamReader
 import java.io.Reader
 import java.io.Writer
 
 class TreeWareServer(
     environment: String,
-    metaModelFilePath: String,
+    metaModelFiles: List<String>,
     logMetaModelFullNames: Boolean
 ) {
     internal val rootName: String
@@ -26,20 +27,9 @@ class TreeWareServer(
     private val hasher = null // TODO(deepak-nulu): create a hasher based on server configuration.
     private val cipher = null // TODO(deepak-nulu): get a secret key from server configuration and create a cipher.
 
-    // Validate the meta-model.
     init {
-        logger.info("Meta-model file: $metaModelFilePath")
-        val metaMetaModel = newMainMetaMetaModel()
-        val metaModelReader = ClassLoader.getSystemResourceAsStream(metaModelFilePath)?.let { InputStreamReader(it) }
-            ?: throw IllegalStateException("Meta-model file not found")
-        val (decodedMetaModel, decodeErrors) = decodeJson<Resolved>(metaModelReader, metaMetaModel, "data") { null }
-        if (decodedMetaModel == null || decodeErrors.isNotEmpty()) {
-            decodeErrors.forEach { logger.error(it) }
-            throw IllegalStateException("Unable to decode meta-model file")
-        }
-        metaModel = decodedMetaModel
-        val metaModelErrors = validate(metaModel, hasher, cipher, logMetaModelFullNames)
-        if (metaModelErrors.isNotEmpty()) throw IllegalStateException("Meta-model has validation errors")
+        logger.info("Meta-model files: $metaModelFiles")
+        metaModel = getMetaModel(metaModelFiles, logMetaModelFullNames)
         rootName = getMetaName(getRootMeta(metaModel))
         logger.info("Meta-model root name: $rootName")
     }
@@ -51,5 +41,24 @@ class TreeWareServer(
         // TODO(deepak-nulu): get encodePasswords value from URL query-param.
         // TODO(deepak-nulu): report decodeErrors once they are in aux form.
         if (model != null) encodeJson(model, null, response, EncodePasswords.ALL, true)
+    }
+
+    /** Returns a validated meta-model created from the meta-model files. */
+    private fun getMetaModel(metaModelFiles: List<String>, logMetaModelFullNames: Boolean): MainModel<Resolved> {
+        val metaMetaModel = newMainMetaMetaModel()
+        val metaModelParts = metaModelFiles.map { file ->
+            val reader = ClassLoader.getSystemResourceAsStream(file)?.let { InputStreamReader(it) }
+                ?: throw IllegalStateException("Meta-model file $file not found")
+            val (decodedMetaModel, decodeErrors) = decodeJson<Resolved>(reader, metaMetaModel, "data") { null }
+            if (decodedMetaModel == null || decodeErrors.isNotEmpty()) {
+                decodeErrors.forEach { logger.error(it) }
+                throw IllegalStateException("Unable to decode meta-model file $file")
+            }
+            decodedMetaModel
+        }
+        val metaModel = union(metaModelParts)
+        val metaModelErrors = validate(metaModel, hasher, cipher, logMetaModelFullNames)
+        if (metaModelErrors.isNotEmpty()) throw IllegalStateException("Meta-model has validation errors")
+        return metaModel
     }
 }

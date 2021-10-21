@@ -6,7 +6,6 @@ import org.treeWare.metaModel.getRootMeta
 import org.treeWare.metaModel.newMainMetaMetaModel
 import org.treeWare.metaModel.validation.validate
 import org.treeWare.model.core.MainModel
-import org.treeWare.model.core.Resolved
 import org.treeWare.model.decoder.decodeJson
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.encodeJson
@@ -23,7 +22,7 @@ class TreeWareServer(
     internal val rootName: String
 
     private val logger = LogManager.getLogger()
-    private val metaModel: MainModel<Resolved>
+    private val metaModel: MainModel
     private val hasher = null // TODO(deepak-nulu): create a hasher based on server configuration.
     private val cipher = null // TODO(deepak-nulu): get a secret key from server configuration and create a cipher.
 
@@ -36,20 +35,20 @@ class TreeWareServer(
 
     fun echo(request: Reader, response: Writer) {
         // TODO(deepak-nulu): get expectedModelType value from URL query-param.
-        val (model, decodeErrors) = decodeJson<Unit>(request, metaModel, "data") { null }
+        val (model, decodeErrors) = decodeJson(request, metaModel, "data")
         // TODO(deepak-nulu): get prettyPrint value from URL query-param.
         // TODO(deepak-nulu): get encodePasswords value from URL query-param.
         // TODO(deepak-nulu): report decodeErrors once they are in aux form.
-        if (model != null) encodeJson(model, null, response, EncodePasswords.ALL, true)
+        if (model != null) encodeJson(model, response, encodePasswords = EncodePasswords.ALL, prettyPrint = true)
     }
 
     /** Returns a validated meta-model created from the meta-model files. */
-    private fun getMetaModel(metaModelFiles: List<String>, logMetaModelFullNames: Boolean): MainModel<Resolved> {
+    private fun getMetaModel(metaModelFiles: List<String>, logMetaModelFullNames: Boolean): MainModel {
         val metaMetaModel = newMainMetaMetaModel()
         val metaModelParts = metaModelFiles.map { file ->
             val reader = ClassLoader.getSystemResourceAsStream(file)?.let { InputStreamReader(it) }
                 ?: throw IllegalStateException("Meta-model file $file not found")
-            val (decodedMetaModel, decodeErrors) = decodeJson<Resolved>(reader, metaMetaModel, "data") { null }
+            val (decodedMetaModel, decodeErrors) = decodeJson(reader, metaMetaModel, "data")
             if (decodedMetaModel == null || decodeErrors.isNotEmpty()) {
                 decodeErrors.forEach { logger.error(it) }
                 throw IllegalStateException("Unable to decode meta-model file $file")

@@ -1,12 +1,14 @@
 package org.treeWare.server.common
 
 import org.apache.logging.log4j.LogManager
+import org.treeWare.metaModel.aux.MetaModelAuxPlugin
 import org.treeWare.metaModel.getMetaName
 import org.treeWare.metaModel.getRootMeta
 import org.treeWare.metaModel.newMainMetaMetaModel
 import org.treeWare.metaModel.validation.validate
 import org.treeWare.model.core.MainModel
 import org.treeWare.model.decoder.decodeJson
+import org.treeWare.model.decoder.stateMachine.MultiAuxDecodingStateMachineFactory
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.encodeJson
 import org.treeWare.model.operator.union
@@ -15,9 +17,9 @@ import java.io.Reader
 import java.io.Writer
 
 class TreeWareServer(
-    environment: String,
     metaModelFiles: List<String>,
-    logMetaModelFullNames: Boolean
+    logMetaModelFullNames: Boolean,
+    metaModelAuxPlugins: List<MetaModelAuxPlugin>
 ) {
     internal val rootName: String
 
@@ -28,7 +30,7 @@ class TreeWareServer(
 
     init {
         logger.info("Meta-model files: $metaModelFiles")
-        metaModel = getMetaModel(metaModelFiles, logMetaModelFullNames)
+        metaModel = getMetaModel(metaModelFiles, logMetaModelFullNames, metaModelAuxPlugins)
         rootName = getMetaName(getRootMeta(metaModel))
         logger.info("Meta-model root name: $rootName")
     }
@@ -43,21 +45,43 @@ class TreeWareServer(
     }
 
     /** Returns a validated meta-model created from the meta-model files. */
-    private fun getMetaModel(metaModelFiles: List<String>, logMetaModelFullNames: Boolean): MainModel {
+    private fun getMetaModel(
+        metaModelFiles: List<String>,
+        logMetaModelFullNames: Boolean,
+        metaModelAuxPlugins: List<MetaModelAuxPlugin>
+    ): MainModel {
         val metaMetaModel = newMainMetaMetaModel()
         val metaModelParts = metaModelFiles.map { file ->
             val reader = ClassLoader.getSystemResourceAsStream(file)?.let { InputStreamReader(it) }
-                ?: throw IllegalStateException("Meta-model file $file not found")
-            val (decodedMetaModel, decodeErrors) = decodeJson(reader, metaMetaModel, "data")
+                ?: throw IllegalArgumentException("Meta-model file $file not found")
+            // TODO(performance): change MultiAuxDecodingStateMachineFactory() varargs to list to avoid array copies.
+            val multiAuxDecodingStateMachineFactory =
+                MultiAuxDecodingStateMachineFactory(*metaModelAuxPlugins.map { it.auxName to it.auxDecodingStateMachineFactory }
+                    .toTypedArray())
+            val (decodedMetaModel, decodeErrors) = decodeJson(
+                reader,
+                metaMetaModel,
+                "data",
+                multiAuxDecodingStateMachineFactory = multiAuxDecodingStateMachineFactory
+            )
             if (decodedMetaModel == null || decodeErrors.isNotEmpty()) {
-                decodeErrors.forEach { logger.error(it) }
-                throw IllegalStateException("Unable to decode meta-model file $file")
+                logErrors(decodeErrors)
+                throw IllegalArgumentException("Unable to decode meta-model file $file")
             }
             decodedMetaModel
         }
         val metaModel = union(metaModelParts)
         val metaModelErrors = validate(metaModel, hasher, cipher, logMetaModelFullNames)
-        if (metaModelErrors.isNotEmpty()) throw IllegalStateException("Meta-model has validation errors")
+        if (metaModelErrors.isNotEmpty()) throw IllegalArgumentException("Meta-model has validation errors")
+        metaModelAuxPlugins.forEach { plugin ->
+            val pluginErrors = plugin.validate(metaModel)
+            if (pluginErrors.isNotEmpty()) {
+                logErrors(pluginErrors)
+                throw IllegalArgumentException("Meta-model has plugin validation errors")
+            }
+        }
         return metaModel
     }
+
+    private fun logErrors(errors: List<String>) = errors.forEach { logger.error(it) }
 }

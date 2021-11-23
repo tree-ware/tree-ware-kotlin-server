@@ -4,8 +4,8 @@ group = "org.tree-ware"
 version = "1.0-SNAPSHOT"
 
 val ktorVersion = "1.6.1"
-
 val log4j2Version = "2.14.1"
+val mockkVersion = "1.12.0"
 
 plugins {
     id("org.jetbrains.kotlin.jvm").version("1.5.21")
@@ -35,6 +35,7 @@ dependencies {
 
     testImplementation(testFixtures(project(":tree-ware-kotlin-core")))
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation(kotlin("test"))
 }
 

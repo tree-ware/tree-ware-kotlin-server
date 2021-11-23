@@ -7,12 +7,7 @@ import io.ktor.routing.*
 import org.treeWare.server.common.TreeWareServer
 import java.io.InputStreamReader
 
-fun Application.treeWareModule(
-    environment: String,
-    metaModelFiles: List<String>,
-    logMetaModelFullNames: Boolean
-) {
-    val treeWareServer = TreeWareServer(environment, metaModelFiles, logMetaModelFullNames)
+fun Application.treeWareModule(treeWareServer: TreeWareServer) {
     val rootName = snakeCaseToKebabCase(treeWareServer.rootName)
 
     routing {

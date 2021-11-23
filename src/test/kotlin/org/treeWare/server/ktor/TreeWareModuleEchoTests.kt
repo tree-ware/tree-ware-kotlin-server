@@ -11,8 +11,8 @@ import kotlin.test.assertNotNull
 
 class TreeWareModuleEchoTests {
     @Test
-    fun `Echo request is echoed back as response`() {
-        val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList())
+    fun `Echo-request must be echoed back as response`() {
+        val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList()) { null }
         withTestApplication({ treeWareModule(treeWareServer) }) {
             val modelJsonReader = getFileReader("model/address_book_1.json")
             assertNotNull(modelJsonReader)

@@ -38,6 +38,7 @@ class TreeWareServer(
         metaModel = getMetaModel(metaModelFiles, logMetaModelFullNames, metaModelAuxPlugins)
         rootName = getMetaName(getRootMeta(metaModel))
         logger.info("Meta-model root name: $rootName")
+        logger.info("tree-ware server started")
     }
 
     fun echo(request: Reader, response: Writer) {

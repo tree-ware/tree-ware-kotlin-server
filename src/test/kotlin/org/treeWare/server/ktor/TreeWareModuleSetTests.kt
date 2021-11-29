@@ -4,11 +4,11 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.mockk.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
-import org.treeWare.metaModel.newMetaModelFromFiles
-import org.treeWare.model.getFileReader
+import org.treeWare.metaModel.newAddressBookMetaModel
 import org.treeWare.model.getMainModelFromJsonString
 import org.treeWare.server.common.Setter
 import org.treeWare.server.common.TreeWareServer
+import org.treeWare.util.getFileReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -65,7 +65,7 @@ class TreeWareModuleSetTests {
         val modelJsonReader = getFileReader("model/address_book_1.json")
         assertNotNull(modelJsonReader)
         val modelJson = modelJsonReader.readText()
-        val metaModel = newMetaModelFromFiles(ADDRESS_BOOK_META_MODEL_FILES, null, null)
+        val metaModel = newAddressBookMetaModel(null, null)
         val errorModel = getMainModelFromJsonString(metaModel, modelJson)
 
         val setter = mockk<Setter>()

@@ -3,8 +3,8 @@ package org.treeWare.server.ktor
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
-import org.treeWare.model.getFileReader
 import org.treeWare.server.common.TreeWareServer
+import org.treeWare.util.getFileReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

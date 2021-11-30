@@ -13,6 +13,9 @@ import org.treeWare.model.encoder.encodeJson
 import java.io.Reader
 import java.io.Writer
 
+/** Performs initialization before the server starts serving. */
+typealias Initializer = (mainMeta: MainModel) -> Unit
+
 /** Sets the model and returns a model with "error" aux if there are errors. */
 typealias Setter = (mainModel: MainModel) -> MainModel?
 
@@ -20,6 +23,7 @@ class TreeWareServer(
     metaModelFiles: List<String>,
     logMetaModelFullNames: Boolean,
     metaModelAuxPlugins: List<MetaModelAuxPlugin>,
+    initializer: Initializer,
     private val setter: Setter
 ) {
     internal val rootName: String
@@ -34,6 +38,8 @@ class TreeWareServer(
         metaModel = newMetaModel(metaModelFiles, logMetaModelFullNames, hasher, cipher, metaModelAuxPlugins)
         rootName = getMetaName(getRootMeta(metaModel))
         logger.info("Meta-model root name: $rootName")
+        logger.info("Calling initializer")
+        initializer(metaModel)
         logger.info("tree-ware server started")
     }
 

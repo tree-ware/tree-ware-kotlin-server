@@ -4,6 +4,8 @@ import io.ktor.application.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.treeWare.server.common.TreeWareServer
 import java.io.InputStreamReader
 
@@ -14,13 +16,17 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
         route("/tree-ware/api") {
             post("echo/$rootName") {
                 // TODO(deepak-nulu): load-test to ensure InputStream does not limit concurrency
-                val reader = InputStreamReader(call.receiveStream())
-                call.respondTextWriter { treeWareServer.echo(reader, this) }
+                withContext(Dispatchers.IO) {
+                    val reader = InputStreamReader(call.receiveStream())
+                    call.respondTextWriter { treeWareServer.echo(reader, this) }
+                }
             }
 
             post("set/$rootName") {
-                val reader = InputStreamReader(call.receiveStream())
-                call.respondTextWriter { treeWareServer.set(reader, this) }
+                withContext(Dispatchers.IO) {
+                    val reader = InputStreamReader(call.receiveStream())
+                    call.respondTextWriter { treeWareServer.set(reader, this) }
+                }
             }
         }
     }

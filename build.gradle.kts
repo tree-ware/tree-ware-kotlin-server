@@ -4,7 +4,7 @@ group = "org.tree-ware"
 version = "1.0-SNAPSHOT"
 
 val ktorVersion = "1.6.1"
-val log4j2Version = "2.14.1"
+val log4j2Version = "2.16.0"
 val mockkVersion = "1.12.0"
 
 plugins {

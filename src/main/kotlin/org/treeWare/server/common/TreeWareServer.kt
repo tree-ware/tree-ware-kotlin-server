@@ -2,8 +2,7 @@ package org.treeWare.server.common
 
 import org.apache.logging.log4j.LogManager
 import org.treeWare.metaModel.aux.MetaModelAuxPlugin
-import org.treeWare.metaModel.getMetaName
-import org.treeWare.metaModel.getRootMeta
+import org.treeWare.metaModel.getRootMetaName
 import org.treeWare.metaModel.newMetaModel
 import org.treeWare.model.core.MainModel
 import org.treeWare.model.decoder.ModelDecoderResult
@@ -36,7 +35,7 @@ class TreeWareServer(
     init {
         logger.info("Meta-model files: $metaModelFiles")
         metaModel = newMetaModel(metaModelFiles, logMetaModelFullNames, hasher, cipher, metaModelAuxPlugins)
-        rootName = getMetaName(getRootMeta(metaModel))
+        rootName = getRootMetaName(metaModel)
         logger.info("Meta-model root name: $rootName")
         logger.info("Calling initializer")
         initializer(metaModel)

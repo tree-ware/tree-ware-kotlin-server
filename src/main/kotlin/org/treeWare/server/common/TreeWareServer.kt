@@ -44,7 +44,7 @@ class TreeWareServer(
 
     fun echo(request: Reader, response: Writer) {
         // TODO(deepak-nulu): get expectedModelType value from URL query-param.
-        val (model, decodeErrors) = decodeJson(request, metaModel, "data")
+        val (model, decodeErrors) = decodeJson(request, metaModel)
         // TODO(deepak-nulu): get prettyPrint value from URL query-param.
         // TODO(deepak-nulu): get encodePasswords value from URL query-param.
         // TODO(deepak-nulu): report decodeErrors once they are in aux form.
@@ -53,7 +53,7 @@ class TreeWareServer(
 
     fun set(request: Reader, response: Writer) {
         val (model, decodeErrors) = try {
-            decodeJson(request, metaModel, "data")
+            decodeJson(request, metaModel)
         } catch (exception: Exception) {
             ModelDecoderResult(null, listOf(exception.message ?: "Exception while decoding set-request"))
         }

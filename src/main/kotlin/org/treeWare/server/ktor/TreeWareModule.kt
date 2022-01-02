@@ -10,11 +10,11 @@ import org.treeWare.server.common.TreeWareServer
 import java.io.InputStreamReader
 
 fun Application.treeWareModule(treeWareServer: TreeWareServer) {
-    val rootName = snakeCaseToKebabCase(treeWareServer.rootName)
+    val mainMetaName = snakeCaseToKebabCase(treeWareServer.mainMetaName)
 
     routing {
         route("/tree-ware/api") {
-            post("echo/$rootName") {
+            post("echo/$mainMetaName") {
                 // TODO(deepak-nulu): load-test to ensure InputStream does not limit concurrency
                 withContext(Dispatchers.IO) {
                     val reader = InputStreamReader(call.receiveStream())
@@ -22,7 +22,7 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                 }
             }
 
-            post("set/$rootName") {
+            post("set/$mainMetaName") {
                 withContext(Dispatchers.IO) {
                     val reader = InputStreamReader(call.receiveStream())
                     call.respondTextWriter { treeWareServer.set(reader, this) }

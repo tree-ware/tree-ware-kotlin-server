@@ -1,6 +1,6 @@
 package org.treeWare.server.common
 
-import org.apache.logging.log4j.LogManager
+import org.lighthousegames.logging.logging
 import org.treeWare.metaModel.aux.MetaModelAuxPlugin
 import org.treeWare.metaModel.getMainMetaName
 import org.treeWare.metaModel.newMetaModel
@@ -27,19 +27,19 @@ class TreeWareServer(
 ) {
     internal val mainMetaName: String
 
-    private val logger = LogManager.getLogger()
+    private val logger = logging()
     private val metaModel: MainModel
     private val hasher = null // TODO(deepak-nulu): create a hasher based on server configuration.
     private val cipher = null // TODO(deepak-nulu): get a secret key from server configuration and create a cipher.
 
     init {
-        logger.info("Meta-model files: $metaModelFiles")
+        logger.info { "Meta-model files: $metaModelFiles" }
         metaModel = newMetaModel(metaModelFiles, logMetaModelFullNames, hasher, cipher, metaModelAuxPlugins)
         mainMetaName = getMainMetaName(metaModel)
-        logger.info("Meta-model name: $mainMetaName")
-        logger.info("Calling initializer")
+        logger.info { "Meta-model name: $mainMetaName" }
+        logger.info { "Calling initializer" }
         initializer(metaModel)
-        logger.info("tree-ware server started")
+        logger.info { "tree-ware server started" }
     }
 
     fun echo(request: Reader, response: Writer) {

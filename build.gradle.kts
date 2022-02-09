@@ -4,7 +4,6 @@ group = "org.tree-ware"
 version = "1.0-SNAPSHOT"
 
 val ktorVersion = "1.6.5"
-val log4j2Version = "2.16.0"
 val mockkVersion = "1.12.0"
 
 plugins {
@@ -29,9 +28,6 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
-
-    implementation("org.apache.logging.log4j:log4j-api:$log4j2Version")
-    implementation("org.apache.logging.log4j:log4j-core:$log4j2Version")
 
     testImplementation(project(":tree-ware-kotlin-core:test-fixtures"))
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")

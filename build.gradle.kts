@@ -3,12 +3,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "org.tree-ware"
 version = "1.0-SNAPSHOT"
 
-val ktorVersion = "1.6.1"
+val ktorVersion = "1.6.5"
 val log4j2Version = "2.16.0"
 val mockkVersion = "1.12.0"
 
 plugins {
-    id("org.jetbrains.kotlin.jvm").version("1.5.21")
+    id("org.jetbrains.kotlin.jvm").version("1.6.10")
     id("idea")
     id("java-library")
 }

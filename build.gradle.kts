@@ -33,7 +33,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:$log4j2Version")
     implementation("org.apache.logging.log4j:log4j-core:$log4j2Version")
 
-    testImplementation(testFixtures(project(":tree-ware-kotlin-core")))
+    testImplementation(project(":tree-ware-kotlin-core:test-fixtures"))
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation(kotlin("test"))

@@ -65,7 +65,8 @@ class TreeWareModuleSetTests {
         val modelJsonReader = getFileReader("model/address_book_1.json")
         assertNotNull(modelJsonReader)
         val modelJson = modelJsonReader.readText()
-        val metaModel = newAddressBookMetaModel(null, null)
+        val metaModel = newAddressBookMetaModel(null, null).metaModel
+            ?: throw IllegalStateException("Meta-model has validation errors")
         val errorModel = getMainModelFromJsonString(metaModel, modelJson)
 
         val setter = mockk<Setter>()

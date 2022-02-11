@@ -3,7 +3,7 @@ package org.treeWare.server.common
 import org.lighthousegames.logging.logging
 import org.treeWare.metaModel.aux.MetaModelAuxPlugin
 import org.treeWare.metaModel.getMainMetaName
-import org.treeWare.metaModel.newMetaModel
+import org.treeWare.metaModel.newMetaModelFromJsonFiles
 import org.treeWare.model.core.MainModel
 import org.treeWare.model.decoder.ModelDecoderResult
 import org.treeWare.model.decoder.decodeJson
@@ -34,7 +34,9 @@ class TreeWareServer(
 
     init {
         logger.info { "Meta-model files: $metaModelFiles" }
-        metaModel = newMetaModel(metaModelFiles, logMetaModelFullNames, hasher, cipher, metaModelAuxPlugins)
+        metaModel = newMetaModelFromJsonFiles(
+            metaModelFiles, logMetaModelFullNames, hasher, cipher, metaModelAuxPlugins, true
+        ).metaModel ?: throw IllegalArgumentException("Meta-model has validation errors")
         mainMetaName = getMainMetaName(metaModel)
         logger.info { "Meta-model name: $mainMetaName" }
         logger.info { "Calling initializer" }

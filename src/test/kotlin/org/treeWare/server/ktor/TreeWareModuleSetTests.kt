@@ -6,6 +6,7 @@ import io.mockk.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.newAddressBookMetaModel
 import org.treeWare.model.getMainModelFromJsonString
+import org.treeWare.server.common.SetResponse
 import org.treeWare.server.common.Setter
 import org.treeWare.server.common.TreeWareServer
 import org.treeWare.util.getFileReader
@@ -24,9 +25,11 @@ class TreeWareModuleSetTests {
             val setRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/set/address-book") {
                 setBody("")
             }
+            val expectedErrors =
+                listOf("Invalid token=EOF at (line no=1, column no=0, offset=-1). Expected tokens are: [CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]")
             with(setRequest) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("", response.content)
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                assertEquals(expectedErrors.joinToString("\n"), response.content)
             }
         }
 
@@ -61,6 +64,33 @@ class TreeWareModuleSetTests {
     }
 
     @Test
+    fun `Error list returned by setter must be returned in set-response`() {
+        val modelJsonReader = getFileReader("model/address_book_1.json")
+        assertNotNull(modelJsonReader)
+        val modelJson = modelJsonReader.readText()
+        val errorList = listOf("Error 1", "Error 2")
+
+        val setter = mockk<Setter>()
+        every { setter.invoke(ofType()) } returns SetResponse.ErrorList(errorList)
+
+        val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), {}, setter)
+        withTestApplication({ treeWareModule(treeWareServer) }) {
+            val setRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/set/address-book") {
+                setBody(modelJson)
+            }
+            with(setRequest) {
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                assertEquals(errorList.joinToString("\n"), response.content)
+            }
+        }
+
+        verifySequence {
+            // TODO(deepak-nulu): validate the model passed to the setter.
+            setter.invoke(ofType())
+        }
+    }
+
+    @Test
     fun `Error model returned by setter must be returned in set-response`() {
         val modelJsonReader = getFileReader("model/address_book_1.json")
         assertNotNull(modelJsonReader)
@@ -70,7 +100,7 @@ class TreeWareModuleSetTests {
         val errorModel = getMainModelFromJsonString(metaModel, modelJson)
 
         val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns errorModel
+        every { setter.invoke(ofType()) } returns SetResponse.ErrorModel(errorModel)
 
         val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), {}, setter)
         withTestApplication({ treeWareModule(treeWareServer) }) {
@@ -78,7 +108,7 @@ class TreeWareModuleSetTests {
                 setBody(modelJson)
             }
             with(setRequest) {
-                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals(modelJson, response.content)
             }
         }

@@ -11,7 +11,23 @@ import kotlin.test.assertNotNull
 
 class TreeWareModuleEchoTests {
     @Test
-    fun `Echo-request must be echoed back as response`() {
+    fun `An invalid echo-request must return errors`() {
+        val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), {}) { null }
+        withTestApplication({ treeWareModule(treeWareServer) }) {
+            val echoRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/echo/address-book") {
+                setBody("")
+            }
+            val expectedErrors =
+                listOf("Invalid token=EOF at (line no=1, column no=0, offset=-1). Expected tokens are: [CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]")
+            with(echoRequest) {
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                assertEquals(expectedErrors.joinToString("\n"), response.content)
+            }
+        }
+    }
+
+    @Test
+    fun `A valid echo-request must be echoed back as response`() {
         val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), {}) { null }
         withTestApplication({ treeWareModule(treeWareServer) }) {
             val modelJsonReader = getFileReader("model/address_book_1.json")

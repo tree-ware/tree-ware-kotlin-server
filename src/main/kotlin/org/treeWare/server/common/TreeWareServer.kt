@@ -5,18 +5,26 @@ import org.treeWare.metaModel.aux.MetaModelAuxPlugin
 import org.treeWare.metaModel.getMainMetaName
 import org.treeWare.metaModel.newMetaModelFromJsonFiles
 import org.treeWare.model.core.MainModel
-import org.treeWare.model.decoder.ModelDecoderResult
 import org.treeWare.model.decoder.decodeJson
-import org.treeWare.model.encoder.EncodePasswords
-import org.treeWare.model.encoder.encodeJson
 import java.io.Reader
-import java.io.Writer
 
 /** Performs initialization before the server starts serving. */
 typealias Initializer = (mainMeta: MainModel) -> Unit
 
-/** Sets the model and returns a model with "error" aux if there are errors. */
-typealias Setter = (mainModel: MainModel) -> MainModel?
+sealed class EchoResponse {
+    data class ErrorList(val errorList: List<String>) : EchoResponse()
+    data class Model(val model: MainModel) : EchoResponse()
+}
+
+sealed class SetResponse {
+    data class ErrorList(val errorList: List<String>) : SetResponse()
+
+    /** A model with "error_" aux. */
+    data class ErrorModel(val errorModel: MainModel) : SetResponse()
+}
+
+/** Sets the model and returns errors if any. */
+typealias Setter = (mainModel: MainModel) -> SetResponse?
 
 class TreeWareServer(
     metaModelFiles: List<String>,
@@ -44,25 +52,16 @@ class TreeWareServer(
         logger.info { "tree-ware server started" }
     }
 
-    fun echo(request: Reader, response: Writer) {
+    fun echo(request: Reader): EchoResponse {
         // TODO(deepak-nulu): get expectedModelType value from URL query-param.
         val (model, decodeErrors) = decodeJson(request, metaModel)
-        // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-        // TODO(deepak-nulu): get encodePasswords value from URL query-param.
-        // TODO(deepak-nulu): report decodeErrors once they are in aux form.
-        if (model != null) encodeJson(model, response, encodePasswords = EncodePasswords.ALL, prettyPrint = true)
+        if (decodeErrors.isNotEmpty() || model == null) return EchoResponse.ErrorList(decodeErrors)
+        return EchoResponse.Model(model)
     }
 
-    fun set(request: Reader, response: Writer) {
-        val (model, decodeErrors) = try {
-            decodeJson(request, metaModel)
-        } catch (exception: Exception) {
-            ModelDecoderResult(null, listOf(exception.message ?: "Exception while decoding set-request"))
-        }
-        // TODO(deepak-nulu): report decodeErrors once they are in aux form.
-        if (model == null) return
-        val errors = setter(model)
-        // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-        if (errors != null) encodeJson(errors, response, encodePasswords = EncodePasswords.ALL, prettyPrint = true)
+    fun set(request: Reader): SetResponse? {
+        val (model, decodeErrors) = decodeJson(request, metaModel)
+        if (model == null) return SetResponse.ErrorList(decodeErrors)
+        return setter(model)
     }
 }

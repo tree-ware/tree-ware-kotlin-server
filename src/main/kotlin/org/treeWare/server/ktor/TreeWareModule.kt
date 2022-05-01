@@ -38,8 +38,9 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                             encodeJson(
                                 echoResponse.model,
                                 this,
-                                encodePasswords = EncodePasswords.ALL,
-                                prettyPrint = true
+                                treeWareServer.modelMultiAuxEncoder,
+                                EncodePasswords.ALL,
+                                true
                             )
                         }
                     }

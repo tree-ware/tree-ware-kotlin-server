@@ -19,7 +19,7 @@ class TreeWareServerMetaModelAuxPluginTests {
         every { validMetaModelAuxPlugin.validate(ofType()) } returns emptyList()
 
         // Create the server.
-        TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, listOf(validMetaModelAuxPlugin), {}) { null }
+        TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, listOf(validMetaModelAuxPlugin), emptyList(), {}) { null }
 
         // TODO(deepak-nulu): change this to verifySequence. Currently auxName
         // and auxDecodingStateMachineFactory get called multiple times. This
@@ -42,7 +42,12 @@ class TreeWareServerMetaModelAuxPluginTests {
 
         // Create the server.
         assertFailsWith<IllegalArgumentException>("Meta-model has plugin validation errors") {
-            TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, listOf(invalidMetaModelAuxPlugin), {}) { null }
+            TreeWareServer(
+                ADDRESS_BOOK_META_MODEL_FILES,
+                false,
+                listOf(invalidMetaModelAuxPlugin),
+                emptyList(),
+                {}) { null }
         }
 
         // TODO(deepak-nulu): change this to verifySequence. See TODO above for details.

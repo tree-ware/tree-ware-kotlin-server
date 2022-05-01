@@ -20,7 +20,7 @@ class TreeWareModuleSetTests {
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns null
 
-        val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), {}, setter)
+        val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), emptyList(), {}, setter)
         withTestApplication({ treeWareModule(treeWareServer) }) {
             val setRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/set/address-book") {
                 setBody("")
@@ -43,7 +43,7 @@ class TreeWareModuleSetTests {
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns null
 
-        val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), {}, setter)
+        val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), emptyList(), {}, setter)
         withTestApplication({ treeWareModule(treeWareServer) }) {
             val modelJsonReader = getFileReader("model/address_book_1.json")
             assertNotNull(modelJsonReader)
@@ -73,7 +73,7 @@ class TreeWareModuleSetTests {
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns SetResponse.ErrorList(errorList)
 
-        val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), {}, setter)
+        val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), emptyList(), {}, setter)
         withTestApplication({ treeWareModule(treeWareServer) }) {
             val setRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/set/address-book") {
                 setBody(modelJson)
@@ -102,7 +102,7 @@ class TreeWareModuleSetTests {
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns SetResponse.ErrorModel(errorModel)
 
-        val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), {}, setter)
+        val treeWareServer = TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), emptyList(), {}, setter)
         withTestApplication({ treeWareModule(treeWareServer) }) {
             val setRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/set/address-book") {
                 setBody(modelJson)

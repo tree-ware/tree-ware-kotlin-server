@@ -11,7 +11,7 @@ class TreeWareServerInitializerTests {
     fun `Initializer must be called before serving starts`() {
         val initializer = mockk<Initializer>()
         every { initializer.invoke(ofType()) } returns Unit
-        TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), initializer) { null }
+        TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), emptyList(), initializer) { null }
         verify { initializer.invoke(ofType()) }
     }
 }

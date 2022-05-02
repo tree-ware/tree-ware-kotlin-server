@@ -8,6 +8,7 @@ import org.treeWare.model.core.MainModel
 import org.treeWare.model.decoder.decodeJson
 import org.treeWare.model.decoder.stateMachine.MultiAuxDecodingStateMachineFactory
 import org.treeWare.model.encoder.MultiAuxEncoder
+import org.treeWare.model.operator.GetResponse
 import java.io.Reader
 
 /** Performs initialization before the server starts serving. */
@@ -28,13 +29,17 @@ sealed class SetResponse {
 /** Sets the model and returns errors if any. */
 typealias Setter = (mainModel: MainModel) -> SetResponse?
 
+/** Returns the requested model or errors if any. */
+typealias Getter = (request: MainModel) -> GetResponse
+
 class TreeWareServer(
     metaModelFiles: List<String>,
     logMetaModelFullNames: Boolean,
     metaModelAuxPlugins: List<MetaModelAuxPlugin>,
     modelAuxPlugins: List<MetaModelAuxPlugin>,
     initializer: Initializer,
-    private val setter: Setter
+    private val setter: Setter,
+    private val getter: Getter
 ) {
     internal val mainMetaName: String
 
@@ -74,7 +79,7 @@ class TreeWareServer(
             metaModel,
             multiAuxDecodingStateMachineFactory = modelMultiAuxDecodingStateMachineFactory
         )
-        if (decodeErrors.isNotEmpty() || model == null) return EchoResponse.ErrorList(decodeErrors)
+        if (model == null || decodeErrors.isNotEmpty()) return EchoResponse.ErrorList(decodeErrors)
         return EchoResponse.Model(model)
     }
 
@@ -84,7 +89,17 @@ class TreeWareServer(
             metaModel,
             multiAuxDecodingStateMachineFactory = modelMultiAuxDecodingStateMachineFactory
         )
-        if (model == null) return SetResponse.ErrorList(decodeErrors)
+        if (model == null || decodeErrors.isNotEmpty()) return SetResponse.ErrorList(decodeErrors)
         return setter(model)
+    }
+
+    fun get(request: Reader): GetResponse {
+        val (model, decodeErrors) = decodeJson(
+            request,
+            metaModel,
+            multiAuxDecodingStateMachineFactory = modelMultiAuxDecodingStateMachineFactory
+        )
+        if (model == null || decodeErrors.isNotEmpty()) return GetResponse.ErrorList(decodeErrors)
+        return getter(model)
     }
 }

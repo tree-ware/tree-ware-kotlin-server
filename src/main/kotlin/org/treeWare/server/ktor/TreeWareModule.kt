@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.encodeJson
+import org.treeWare.model.operator.GetResponse
 import org.treeWare.server.common.EchoResponse
 import org.treeWare.server.common.SetResponse
 import org.treeWare.server.common.TreeWareServer
@@ -65,11 +66,51 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                             encodeJson(
                                 setResponse.errorModel,
                                 this,
-                                encodePasswords = EncodePasswords.ALL,
-                                prettyPrint = true
+                                treeWareServer.modelMultiAuxEncoder,
+                                EncodePasswords.ALL,
+                                true
                             )
                         }
                         null -> call.respondText("")
+                    }
+                }
+            }
+
+            post("get/$mainMetaName") {
+                withContext(Dispatchers.IO) {
+                    val reader = InputStreamReader(call.receiveStream())
+                    when (val getResponse = treeWareServer.get(reader)) {
+                        is GetResponse.Model -> call.respondTextWriter {
+                            // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+                            // TODO(deepak-nulu): get encodePasswords value from URL query-param.
+                            // TODO(deepak-nulu): report decodeErrors once they are in aux form.
+                            encodeJson(
+                                getResponse.model,
+                                this,
+                                treeWareServer.modelMultiAuxEncoder,
+                                EncodePasswords.ALL,
+                                true
+                            )
+                        }
+                        is GetResponse.ErrorList -> call.respondTextWriter(
+                            ContentType.Text.Plain,
+                            HttpStatusCode.BadRequest
+                        ) {
+                            writeStringList(this, getResponse.errorList)
+                        }
+                        is GetResponse.ErrorModel -> call.respondTextWriter(
+                            ContentType.Application.Json,
+                            HttpStatusCode.BadRequest
+                        ) {
+                            // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+                            encodeJson(
+                                getResponse.errorModel,
+                                this,
+                                treeWareServer.modelMultiAuxEncoder,
+                                EncodePasswords.ALL,
+                                true
+                            )
+                        }
                     }
                 }
             }

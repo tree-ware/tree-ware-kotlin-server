@@ -6,6 +6,7 @@ import io.mockk.verifyOrder
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.aux.MetaModelAuxPlugin
 import org.treeWare.model.decoder.stateMachine.StringAuxStateMachine
+import org.treeWare.model.operator.GetResponse
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -19,7 +20,13 @@ class TreeWareServerMetaModelAuxPluginTests {
         every { validMetaModelAuxPlugin.validate(ofType()) } returns emptyList()
 
         // Create the server.
-        TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, listOf(validMetaModelAuxPlugin), emptyList(), {}) { null }
+        TreeWareServer(
+            ADDRESS_BOOK_META_MODEL_FILES,
+            false,
+            listOf(validMetaModelAuxPlugin),
+            emptyList(),
+            {},
+            { null }) { GetResponse.ErrorList(emptyList()) }
 
         // TODO(deepak-nulu): change this to verifySequence. Currently auxName
         // and auxDecodingStateMachineFactory get called multiple times. This
@@ -47,7 +54,8 @@ class TreeWareServerMetaModelAuxPluginTests {
                 false,
                 listOf(invalidMetaModelAuxPlugin),
                 emptyList(),
-                {}) { null }
+                {},
+                { null }) { GetResponse.ErrorList(emptyList()) }
         }
 
         // TODO(deepak-nulu): change this to verifySequence. See TODO above for details.

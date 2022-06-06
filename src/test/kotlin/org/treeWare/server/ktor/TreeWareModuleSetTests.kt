@@ -4,7 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.mockk.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
-import org.treeWare.metaModel.newAddressBookMetaModel
+import org.treeWare.metaModel.addressBookMetaModel
 import org.treeWare.model.getMainModelFromJsonString
 import org.treeWare.model.operator.GetResponse
 import org.treeWare.server.common.SetResponse
@@ -117,9 +117,7 @@ class TreeWareModuleSetTests {
         val modelJsonReader = getFileReader("model/address_book_1.json")
         assertNotNull(modelJsonReader)
         val modelJson = modelJsonReader.readText()
-        val metaModel = newAddressBookMetaModel(null, null).metaModel
-            ?: throw IllegalStateException("Meta-model has validation errors")
-        val errorModel = getMainModelFromJsonString(metaModel, modelJson)
+        val errorModel = getMainModelFromJsonString(addressBookMetaModel, modelJson)
 
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns SetResponse.ErrorModel(errorModel)

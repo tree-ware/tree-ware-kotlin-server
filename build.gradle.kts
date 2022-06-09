@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "org.tree-ware"
 version = "1.0-SNAPSHOT"
 
-val ktorVersion = "1.6.5"
+val ktorVersion = "2.0.2"
 val mockkVersion = "1.12.0"
 
 plugins {
@@ -28,6 +28,8 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
+    implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
+    implementation("io.ktor:ktor-server-default-headers:$ktorVersion")
 
     testImplementation(project(":tree-ware-kotlin-core:test-fixtures"))
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")

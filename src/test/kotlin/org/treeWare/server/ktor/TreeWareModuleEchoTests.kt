@@ -1,5 +1,7 @@
 package org.treeWare.server.ktor
 
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
@@ -17,16 +19,15 @@ class TreeWareModuleEchoTests {
             TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), emptyList(), {}, { null }) {
                 GetResponse.ErrorList(emptyList())
             }
-        withTestApplication({ treeWareModule(treeWareServer) }) {
-            val echoRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/echo/address-book") {
+        testApplication {
+            application { treeWareModule(treeWareServer) }
+            val response = client.post("/tree-ware/api/echo/address-book") {
                 setBody("")
             }
             val expectedErrors =
                 listOf("Invalid token=EOF at (line no=1, column no=0, offset=-1). Expected tokens are: [CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]")
-            with(echoRequest) {
-                assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals(expectedErrors.joinToString("\n"), response.content)
-            }
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertEquals(expectedErrors.joinToString("\n"), response.bodyAsText())
         }
     }
 
@@ -36,17 +37,16 @@ class TreeWareModuleEchoTests {
             TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), emptyList(), {}, { null }) {
                 GetResponse.ErrorList(emptyList())
             }
-        withTestApplication({ treeWareModule(treeWareServer) }) {
+        testApplication {
+            application { treeWareModule(treeWareServer) }
             val modelJsonReader = getFileReader("model/address_book_1.json")
             assertNotNull(modelJsonReader)
             val modelJson = modelJsonReader.readText()
-            val echoRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/echo/address-book") {
+            val response = client.post("/tree-ware/api/echo/address-book") {
                 setBody(modelJson)
             }
-            with(echoRequest) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(modelJson, response.content)
-            }
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(modelJson, response.bodyAsText())
         }
     }
 }

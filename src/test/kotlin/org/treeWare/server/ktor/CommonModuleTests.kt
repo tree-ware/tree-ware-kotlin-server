@@ -1,19 +1,18 @@
 package org.treeWare.server.ktor
 
-import io.ktor.application.Application
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.handleRequest
-import io.ktor.server.testing.withTestApplication
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.server.testing.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CommonModuleTests {
     @Test
-    fun `Server health is ok`() = withTestApplication(Application::commonModule) {
-        with(handleRequest(HttpMethod.Get, "/health")) {
-            assertEquals(HttpStatusCode.OK, response.status())
-            assertEquals("ok", response.content)
-        }
+    fun `Server health is ok`() = testApplication {
+        application { commonModule() }
+        val response = client.get("/health")
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals("ok", response.bodyAsText())
     }
 }

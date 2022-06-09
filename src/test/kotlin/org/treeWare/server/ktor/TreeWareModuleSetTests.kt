@@ -1,5 +1,7 @@
 package org.treeWare.server.ktor
 
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.mockk.*
@@ -7,13 +9,12 @@ import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.addressBookMetaModel
 import org.treeWare.model.getMainModelFromJsonString
 import org.treeWare.model.operator.GetResponse
+import org.treeWare.model.readFile
 import org.treeWare.server.common.SetResponse
 import org.treeWare.server.common.Setter
 import org.treeWare.server.common.TreeWareServer
-import org.treeWare.util.getFileReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class TreeWareModuleSetTests {
     @Test
@@ -29,16 +30,15 @@ class TreeWareModuleSetTests {
             {},
             setter
         ) { GetResponse.ErrorList(emptyList()) }
-        withTestApplication({ treeWareModule(treeWareServer) }) {
-            val setRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/set/address-book") {
+        testApplication {
+            application { treeWareModule(treeWareServer) }
+            val response = client.post("/tree-ware/api/set/address-book") {
                 setBody("")
             }
             val expectedErrors =
                 listOf("Invalid token=EOF at (line no=1, column no=0, offset=-1). Expected tokens are: [CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]")
-            with(setRequest) {
-                assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals(expectedErrors.joinToString("\n"), response.content)
-            }
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertEquals(expectedErrors.joinToString("\n"), response.bodyAsText())
         }
 
         verify {
@@ -59,17 +59,14 @@ class TreeWareModuleSetTests {
             {},
             setter
         ) { GetResponse.ErrorList(emptyList()) }
-        withTestApplication({ treeWareModule(treeWareServer) }) {
-            val modelJsonReader = getFileReader("model/address_book_1.json")
-            assertNotNull(modelJsonReader)
-            val modelJson = modelJsonReader.readText()
-            val setRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/set/address-book") {
-                setBody(modelJson)
+        testApplication {
+            application { treeWareModule(treeWareServer) }
+            val setRequest = readFile("model/address_book_1.json")
+            val response = client.post("/tree-ware/api/set/address-book") {
+                setBody(setRequest)
             }
-            with(setRequest) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("", response.content)
-            }
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals("", response.bodyAsText())
         }
 
         verifySequence {
@@ -80,11 +77,7 @@ class TreeWareModuleSetTests {
 
     @Test
     fun `Error list returned by setter must be returned in set-response`() {
-        val modelJsonReader = getFileReader("model/address_book_1.json")
-        assertNotNull(modelJsonReader)
-        val modelJson = modelJsonReader.readText()
         val errorList = listOf("Error 1", "Error 2")
-
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns SetResponse.ErrorList(errorList)
 
@@ -96,14 +89,14 @@ class TreeWareModuleSetTests {
             {},
             setter
         ) { GetResponse.ErrorList(emptyList()) }
-        withTestApplication({ treeWareModule(treeWareServer) }) {
-            val setRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/set/address-book") {
-                setBody(modelJson)
+        testApplication {
+            application { treeWareModule(treeWareServer) }
+            val setRequest = readFile("model/address_book_1.json")
+            val response = client.post("/tree-ware/api/set/address-book") {
+                setBody(setRequest)
             }
-            with(setRequest) {
-                assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals(errorList.joinToString("\n"), response.content)
-            }
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertEquals(errorList.joinToString("\n"), response.bodyAsText())
         }
 
         verifySequence {
@@ -114,10 +107,8 @@ class TreeWareModuleSetTests {
 
     @Test
     fun `Error model returned by setter must be returned in set-response`() {
-        val modelJsonReader = getFileReader("model/address_book_1.json")
-        assertNotNull(modelJsonReader)
-        val modelJson = modelJsonReader.readText()
-        val errorModel = getMainModelFromJsonString(addressBookMetaModel, modelJson)
+        val errorJson = readFile("model/address_book_1.json")
+        val errorModel = getMainModelFromJsonString(addressBookMetaModel, errorJson)
 
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns SetResponse.ErrorModel(errorModel)
@@ -130,14 +121,14 @@ class TreeWareModuleSetTests {
             {},
             setter
         ) { GetResponse.ErrorList(emptyList()) }
-        withTestApplication({ treeWareModule(treeWareServer) }) {
-            val setRequest = handleRequest(HttpMethod.Post, "/tree-ware/api/set/address-book") {
-                setBody(modelJson)
+        testApplication {
+            application { treeWareModule(treeWareServer) }
+            val setRequest = readFile("model/address_book_1.json")
+            val response = client.post("/tree-ware/api/set/address-book") {
+                setBody(setRequest)
             }
-            with(setRequest) {
-                assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals(modelJson, response.content)
-            }
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertEquals(errorJson, response.bodyAsText())
         }
 
         verifySequence {

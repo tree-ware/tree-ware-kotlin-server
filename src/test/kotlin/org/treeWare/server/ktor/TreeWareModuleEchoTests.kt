@@ -6,6 +6,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.model.operator.GetResponse
+import org.treeWare.server.addressBookPermitAllRbacGetter
 import org.treeWare.server.common.TreeWareServer
 import org.treeWare.util.getFileReader
 import kotlin.test.Test
@@ -16,7 +17,14 @@ class TreeWareModuleEchoTests {
     @Test
     fun `An invalid echo-request must return errors`() {
         val treeWareServer =
-            TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), emptyList(), {}, { null }) {
+            TreeWareServer(
+                ADDRESS_BOOK_META_MODEL_FILES,
+                false,
+                emptyList(),
+                emptyList(),
+                {},
+                ::addressBookPermitAllRbacGetter,
+                { null }) {
                 GetResponse.ErrorList(emptyList())
             }
         testApplication {
@@ -34,7 +42,14 @@ class TreeWareModuleEchoTests {
     @Test
     fun `A valid echo-request must be echoed back as response`() {
         val treeWareServer =
-            TreeWareServer(ADDRESS_BOOK_META_MODEL_FILES, false, emptyList(), emptyList(), {}, { null }) {
+            TreeWareServer(
+                ADDRESS_BOOK_META_MODEL_FILES,
+                false,
+                emptyList(),
+                emptyList(),
+                {},
+                ::addressBookPermitAllRbacGetter,
+                { null }) {
                 GetResponse.ErrorList(emptyList())
             }
         testApplication {

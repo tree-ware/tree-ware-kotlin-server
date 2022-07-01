@@ -9,7 +9,10 @@ import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.addressBookMetaModel
 import org.treeWare.model.getMainModelFromJsonString
 import org.treeWare.model.operator.GetResponse
+import org.treeWare.model.operator.set.aux.SetAuxPlugin
 import org.treeWare.model.readFile
+import org.treeWare.server.addressBookPermitAllRbacGetter
+import org.treeWare.server.addressBookPermitNoneRbacGetter
 import org.treeWare.server.common.SetResponse
 import org.treeWare.server.common.Setter
 import org.treeWare.server.common.TreeWareServer
@@ -28,6 +31,7 @@ class TreeWareModuleSetTests {
             emptyList(),
             emptyList(),
             {},
+            ::addressBookPermitAllRbacGetter,
             setter
         ) { GetResponse.ErrorList(emptyList()) }
         testApplication {
@@ -47,6 +51,43 @@ class TreeWareModuleSetTests {
     }
 
     @Test
+    fun `A set-request that is completely denied by RBAC must return an error and must not call the setter`() {
+        val setter = mockk<Setter>()
+        every { setter.invoke(ofType()) } returns null
+
+        val treeWareServer = TreeWareServer(
+            ADDRESS_BOOK_META_MODEL_FILES,
+            false,
+            emptyList(),
+            listOf(SetAuxPlugin()),
+            {},
+            ::addressBookPermitNoneRbacGetter,
+            setter
+        ) { GetResponse.ErrorList(emptyList()) }
+        testApplication {
+            application { treeWareModule(treeWareServer) }
+            val setRequest = """
+                |{
+                |  "address_book__set_": "create",
+                |  "address_book": {
+                |    "name": "Super Heroes"
+                |  }
+                |}
+            """.trimMargin()
+            val response = client.post("/tree-ware/api/set/address-book") {
+                setBody(setRequest)
+            }
+            val expectedErrors = listOf("Unauthorized")
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertEquals(expectedErrors.joinToString("\n"), response.bodyAsText())
+        }
+
+        verify {
+            setter wasNot called
+        }
+    }
+
+    @Test
     fun `A set-request with a valid model must call the setter`() {
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns null
@@ -55,13 +96,21 @@ class TreeWareModuleSetTests {
             ADDRESS_BOOK_META_MODEL_FILES,
             false,
             emptyList(),
-            emptyList(),
+            listOf(SetAuxPlugin()),
             {},
+            ::addressBookPermitAllRbacGetter,
             setter
         ) { GetResponse.ErrorList(emptyList()) }
         testApplication {
             application { treeWareModule(treeWareServer) }
-            val setRequest = readFile("model/address_book_1.json")
+            val setRequest = """
+                |{
+                |  "address_book__set_": "create",
+                |  "address_book": {
+                |    "name": "Super Heroes"
+                |  }
+                |}
+            """.trimMargin()
             val response = client.post("/tree-ware/api/set/address-book") {
                 setBody(setRequest)
             }
@@ -85,13 +134,21 @@ class TreeWareModuleSetTests {
             ADDRESS_BOOK_META_MODEL_FILES,
             false,
             emptyList(),
-            emptyList(),
+            listOf(SetAuxPlugin()),
             {},
+            ::addressBookPermitAllRbacGetter,
             setter
         ) { GetResponse.ErrorList(emptyList()) }
         testApplication {
             application { treeWareModule(treeWareServer) }
-            val setRequest = readFile("model/address_book_1.json")
+            val setRequest = """
+                |{
+                |  "address_book__set_": "create",
+                |  "address_book": {
+                |    "name": "Super Heroes"
+                |  }
+                |}
+            """.trimMargin()
             val response = client.post("/tree-ware/api/set/address-book") {
                 setBody(setRequest)
             }
@@ -117,13 +174,21 @@ class TreeWareModuleSetTests {
             ADDRESS_BOOK_META_MODEL_FILES,
             false,
             emptyList(),
-            emptyList(),
+            listOf(SetAuxPlugin()),
             {},
+            ::addressBookPermitAllRbacGetter,
             setter
         ) { GetResponse.ErrorList(emptyList()) }
         testApplication {
             application { treeWareModule(treeWareServer) }
-            val setRequest = readFile("model/address_book_1.json")
+            val setRequest = """
+                |{
+                |  "address_book__set_": "create",
+                |  "address_book": {
+                |    "name": "Super Heroes"
+                |  }
+                |}
+            """.trimMargin()
             val response = client.post("/tree-ware/api/set/address-book") {
                 setBody(setRequest)
             }

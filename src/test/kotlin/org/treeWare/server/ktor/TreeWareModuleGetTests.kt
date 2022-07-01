@@ -7,12 +7,17 @@ import io.ktor.server.testing.*
 import io.mockk.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.addressBookMetaModel
+import org.treeWare.model.encoder.EncodePasswords
+import org.treeWare.model.encoder.encodeJson
 import org.treeWare.model.getMainModelFromJsonString
 import org.treeWare.model.operator.GetResponse
 import org.treeWare.model.readFile
+import org.treeWare.server.addressBookPermitAllRbacGetter
+import org.treeWare.server.addressBookPermitNoneRbacGetter
 import org.treeWare.server.common.Getter
 import org.treeWare.server.common.SetResponse
 import org.treeWare.server.common.TreeWareServer
+import java.io.StringWriter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -27,6 +32,7 @@ class TreeWareModuleGetTests {
             emptyList(),
             emptyList(),
             {},
+            ::addressBookPermitAllRbacGetter,
             { SetResponse.ErrorList(emptyList()) },
             getter
         )
@@ -37,6 +43,36 @@ class TreeWareModuleGetTests {
             }
             val expectedErrors =
                 listOf("Invalid token=EOF at (line no=1, column no=0, offset=-1). Expected tokens are: [CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]")
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertEquals(expectedErrors.joinToString("\n"), response.bodyAsText())
+        }
+
+        verify {
+            getter wasNot called
+        }
+    }
+
+    @Test
+    fun `A get-request that is completely denied by RBAC must return an error and must not call the getter`() {
+        val getter = mockk<Getter>()
+
+        val treeWareServer = TreeWareServer(
+            ADDRESS_BOOK_META_MODEL_FILES,
+            false,
+            emptyList(),
+            emptyList(),
+            {},
+            ::addressBookPermitNoneRbacGetter,
+            { SetResponse.ErrorList(emptyList()) },
+            getter
+        )
+        val getRequest = readFile("model/address_book_1.json")
+        testApplication {
+            application { treeWareModule(treeWareServer) }
+            val response = client.post("/tree-ware/api/get/address-book") {
+                setBody(getRequest)
+            }
+            val expectedErrors = listOf("Unauthorized")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals(expectedErrors.joinToString("\n"), response.bodyAsText())
         }
@@ -58,12 +94,13 @@ class TreeWareModuleGetTests {
             emptyList(),
             emptyList(),
             {},
+            ::addressBookPermitAllRbacGetter,
             { SetResponse.ErrorList(emptyList()) },
             getter
         )
+        val getRequest = readFile("model/address_book_1.json")
         testApplication {
             application { treeWareModule(treeWareServer) }
-            val getRequest = readFile("model/address_book_2.json")
             val response = client.post("/tree-ware/api/get/address-book") {
                 setBody(getRequest)
             }
@@ -72,8 +109,14 @@ class TreeWareModuleGetTests {
         }
 
         verifySequence {
-            // TODO(deepak-nulu): validate the model passed to the getter.
-            getter.invoke(ofType())
+            getter.invoke(match {
+                // NOTE: mockk appears to be catching exceptions, so assert functions cannot be used here.
+                val actualRequest = StringWriter()
+                encodeJson(it, actualRequest, encodePasswords = EncodePasswords.ALL, prettyPrint = true)
+                val isMatching = getRequest == actualRequest.toString()
+                if (!isMatching) println("actualRequest: $actualRequest")
+                isMatching
+            })
         }
     }
 
@@ -90,12 +133,13 @@ class TreeWareModuleGetTests {
             emptyList(),
             emptyList(),
             {},
+            ::addressBookPermitAllRbacGetter,
             { SetResponse.ErrorList(emptyList()) },
             getter
         )
+        val getRequest = readFile("model/address_book_1.json")
         testApplication {
             application { treeWareModule(treeWareServer) }
-            val getRequest = readFile("model/address_book_2.json")
             val response = client.post("/tree-ware/api/get/address-book") {
                 setBody(getRequest)
             }
@@ -104,8 +148,14 @@ class TreeWareModuleGetTests {
         }
 
         verifySequence {
-            // TODO(deepak-nulu): validate the model passed to the getter.
-            getter.invoke(ofType())
+            getter.invoke(match {
+                // NOTE: mockk appears to be catching exceptions, so assert functions cannot be used here.
+                val actualRequest = StringWriter()
+                encodeJson(it, actualRequest, encodePasswords = EncodePasswords.ALL, prettyPrint = true)
+                val isMatching = getRequest == actualRequest.toString()
+                if (!isMatching) println("actualRequest: $actualRequest")
+                isMatching
+            })
         }
     }
 }

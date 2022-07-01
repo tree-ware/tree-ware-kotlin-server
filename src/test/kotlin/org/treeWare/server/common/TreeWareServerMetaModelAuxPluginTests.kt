@@ -7,6 +7,7 @@ import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.aux.MetaModelAuxPlugin
 import org.treeWare.model.decoder.stateMachine.StringAuxStateMachine
 import org.treeWare.model.operator.GetResponse
+import org.treeWare.server.addressBookPermitAllRbacGetter
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -26,6 +27,7 @@ class TreeWareServerMetaModelAuxPluginTests {
             listOf(validMetaModelAuxPlugin),
             emptyList(),
             {},
+            ::addressBookPermitAllRbacGetter,
             { null }) { GetResponse.ErrorList(emptyList()) }
 
         // TODO(deepak-nulu): change this to verifySequence. Currently auxName
@@ -55,6 +57,7 @@ class TreeWareServerMetaModelAuxPluginTests {
                 listOf(invalidMetaModelAuxPlugin),
                 emptyList(),
                 {},
+                ::addressBookPermitAllRbacGetter,
                 { null }) { GetResponse.ErrorList(emptyList()) }
         }
 

@@ -9,9 +9,12 @@ import org.treeWare.model.decoder.decodeJson
 import org.treeWare.model.decoder.stateMachine.MultiAuxDecodingStateMachineFactory
 import org.treeWare.model.encoder.MultiAuxEncoder
 import org.treeWare.model.operator.GetResponse
+import org.treeWare.model.operator.permitGet
+import org.treeWare.model.operator.permitSet
+import org.treeWare.model.operator.validateSet
 import java.io.Reader
 
-/** Performs initialization before the server starts serving. */
+/** Perform initialization before the server starts serving. */
 typealias Initializer = (mainMeta: MainModel) -> Unit
 
 sealed class EchoResponse {
@@ -26,10 +29,13 @@ sealed class SetResponse {
     data class ErrorModel(val errorModel: MainModel) : SetResponse()
 }
 
-/** Sets the model and returns errors if any. */
+/** Return the RBAC model for the logged-in user. */
+typealias RbacGetter = (mainMeta: MainModel) -> MainModel
+
+/** Set the model and returns errors if any. */
 typealias Setter = (mainModel: MainModel) -> SetResponse?
 
-/** Returns the requested model or errors if any. */
+/** Return the requested model or errors if any. */
 typealias Getter = (request: MainModel) -> GetResponse
 
 class TreeWareServer(
@@ -38,6 +44,7 @@ class TreeWareServer(
     metaModelAuxPlugins: List<MetaModelAuxPlugin>,
     modelAuxPlugins: List<MetaModelAuxPlugin>,
     initializer: Initializer,
+    private val rbacGetter: RbacGetter,
     private val setter: Setter,
     private val getter: Getter
 ) {
@@ -90,7 +97,13 @@ class TreeWareServer(
             multiAuxDecodingStateMachineFactory = modelMultiAuxDecodingStateMachineFactory
         )
         if (model == null || decodeErrors.isNotEmpty()) return SetResponse.ErrorList(decodeErrors)
-        return setter(model)
+        val validationErrors = validateSet(model)
+        if (validationErrors.isNotEmpty()) return SetResponse.ErrorList(validationErrors.map { it.toString() })
+        val rbac = rbacGetter(metaModel)
+        // TODO(deepak-nulu): return errors that indicate which parts are not permitted
+        // TODO(deepak-nulu): ErrorList (and ErrorModel) should have a type that can be mapped to an HTTP status code.
+        val permitted = permitSet(model, rbac) ?: return SetResponse.ErrorList(listOf("Unauthorized"))
+        return setter(permitted)
     }
 
     fun get(request: Reader): GetResponse {
@@ -100,6 +113,10 @@ class TreeWareServer(
             multiAuxDecodingStateMachineFactory = modelMultiAuxDecodingStateMachineFactory
         )
         if (model == null || decodeErrors.isNotEmpty()) return GetResponse.ErrorList(decodeErrors)
-        return getter(model)
+        val rbac = rbacGetter(metaModel)
+        // TODO(deepak-nulu): return errors that indicate which parts are not permitted
+        // TODO(deepak-nulu): ErrorList (and ErrorModel) should have a type that can be mapped to an HTTP status code.
+        val permitted = permitGet(model, rbac) ?: return GetResponse.ErrorList(listOf("Unauthorized"))
+        return getter(permitted)
     }
 }

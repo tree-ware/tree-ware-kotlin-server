@@ -6,7 +6,7 @@ import io.mockk.verifyOrder
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.aux.MetaModelAuxPlugin
 import org.treeWare.model.decoder.stateMachine.StringAuxStateMachine
-import org.treeWare.model.operator.GetResponse
+import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.server.addressBookPermitAllRbacGetter
 import kotlin.test.Test
 import kotlin.test.assertFailsWith

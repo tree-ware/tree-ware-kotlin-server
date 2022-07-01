@@ -8,9 +8,10 @@ import org.treeWare.model.core.MainModel
 import org.treeWare.model.decoder.decodeJson
 import org.treeWare.model.decoder.stateMachine.MultiAuxDecodingStateMachineFactory
 import org.treeWare.model.encoder.MultiAuxEncoder
-import org.treeWare.model.operator.GetResponse
+import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.permitGet
 import org.treeWare.model.operator.permitSet
+import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.model.operator.validateSet
 import java.io.Reader
 
@@ -18,15 +19,8 @@ import java.io.Reader
 typealias Initializer = (mainMeta: MainModel) -> Unit
 
 sealed class EchoResponse {
-    data class ErrorList(val errorList: List<String>) : EchoResponse()
     data class Model(val model: MainModel) : EchoResponse()
-}
-
-sealed class SetResponse {
-    data class ErrorList(val errorList: List<String>) : SetResponse()
-
-    /** A model with "error_" aux. */
-    data class ErrorModel(val errorModel: MainModel) : SetResponse()
+    data class ErrorList(val errorList: List<String>) : EchoResponse()
 }
 
 /** Return the RBAC model for the logged-in user. */

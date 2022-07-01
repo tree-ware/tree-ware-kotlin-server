@@ -8,12 +8,12 @@ import io.mockk.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.addressBookMetaModel
 import org.treeWare.model.getMainModelFromJsonString
-import org.treeWare.model.operator.GetResponse
+import org.treeWare.model.operator.get.GetResponse
+import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.model.operator.set.aux.SetAuxPlugin
 import org.treeWare.model.readFile
 import org.treeWare.server.addressBookPermitAllRbacGetter
 import org.treeWare.server.addressBookPermitNoneRbacGetter
-import org.treeWare.server.common.SetResponse
 import org.treeWare.server.common.Setter
 import org.treeWare.server.common.TreeWareServer
 import kotlin.test.Test

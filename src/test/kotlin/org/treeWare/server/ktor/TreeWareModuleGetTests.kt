@@ -10,12 +10,12 @@ import org.treeWare.metaModel.addressBookMetaModel
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.encodeJson
 import org.treeWare.model.getMainModelFromJsonString
-import org.treeWare.model.operator.GetResponse
+import org.treeWare.model.operator.get.GetResponse
+import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.model.readFile
 import org.treeWare.server.addressBookPermitAllRbacGetter
 import org.treeWare.server.addressBookPermitNoneRbacGetter
 import org.treeWare.server.common.Getter
-import org.treeWare.server.common.SetResponse
 import org.treeWare.server.common.TreeWareServer
 import java.io.StringWriter
 import kotlin.test.Test

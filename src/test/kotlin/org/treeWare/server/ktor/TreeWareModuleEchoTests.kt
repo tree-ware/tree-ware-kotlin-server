@@ -5,7 +5,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
-import org.treeWare.model.operator.GetResponse
+import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.server.addressBookPermitAllRbacGetter
 import org.treeWare.server.common.TreeWareServer
 import org.treeWare.util.getFileReader

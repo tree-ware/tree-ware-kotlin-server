@@ -9,9 +9,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.encodeJson
-import org.treeWare.model.operator.GetResponse
+import org.treeWare.model.operator.get.GetResponse
+import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.server.common.EchoResponse
-import org.treeWare.server.common.SetResponse
 import org.treeWare.server.common.TreeWareServer
 import java.io.InputStreamReader
 import java.io.Writer

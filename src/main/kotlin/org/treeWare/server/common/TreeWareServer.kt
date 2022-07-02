@@ -8,6 +8,7 @@ import org.treeWare.model.core.MainModel
 import org.treeWare.model.decoder.decodeJson
 import org.treeWare.model.decoder.stateMachine.MultiAuxDecodingStateMachineFactory
 import org.treeWare.model.encoder.MultiAuxEncoder
+import org.treeWare.model.operator.ElementModelError
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.permitGet
 import org.treeWare.model.operator.permitSet
@@ -90,13 +91,16 @@ class TreeWareServer(
             metaModel,
             multiAuxDecodingStateMachineFactory = modelMultiAuxDecodingStateMachineFactory
         )
-        if (model == null || decodeErrors.isNotEmpty()) return SetResponse.ErrorList(decodeErrors)
+        if (model == null || decodeErrors.isNotEmpty()) return SetResponse.ErrorList(decodeErrors.map {
+            ElementModelError("", it)
+        })
         val validationErrors = validateSet(model)
-        if (validationErrors.isNotEmpty()) return SetResponse.ErrorList(validationErrors.map { it.toString() })
+        if (validationErrors.isNotEmpty()) return SetResponse.ErrorList(validationErrors)
         val rbac = rbacGetter(metaModel)
         // TODO(deepak-nulu): return errors that indicate which parts are not permitted
         // TODO(deepak-nulu): ErrorList (and ErrorModel) should have a type that can be mapped to an HTTP status code.
-        val permitted = permitSet(model, rbac) ?: return SetResponse.ErrorList(listOf("Unauthorized"))
+        val permitted = permitSet(model, rbac)
+            ?: return SetResponse.ErrorList(listOf(ElementModelError("", "Unauthorized")))
         return setter(permitted)
     }
 
@@ -106,11 +110,14 @@ class TreeWareServer(
             metaModel,
             multiAuxDecodingStateMachineFactory = modelMultiAuxDecodingStateMachineFactory
         )
-        if (model == null || decodeErrors.isNotEmpty()) return GetResponse.ErrorList(decodeErrors)
+        if (model == null || decodeErrors.isNotEmpty()) return GetResponse.ErrorList(decodeErrors.map {
+            ElementModelError("", it)
+        })
         val rbac = rbacGetter(metaModel)
         // TODO(deepak-nulu): return errors that indicate which parts are not permitted
         // TODO(deepak-nulu): ErrorList (and ErrorModel) should have a type that can be mapped to an HTTP status code.
-        val permitted = permitGet(model, rbac) ?: return GetResponse.ErrorList(listOf("Unauthorized"))
+        val permitted = permitGet(model, rbac)
+            ?: return GetResponse.ErrorList(listOf(ElementModelError("", "Unauthorized")))
         return getter(permitted)
     }
 }

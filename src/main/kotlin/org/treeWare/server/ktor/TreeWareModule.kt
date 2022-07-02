@@ -8,7 +8,9 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.treeWare.model.encoder.EncodePasswords
+import org.treeWare.model.encoder.JsonWireFormatEncoder
 import org.treeWare.model.encoder.encodeJson
+import org.treeWare.model.operator.ElementModelError
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.server.common.EchoResponse
@@ -26,13 +28,7 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                 withContext(Dispatchers.IO) {
                     val reader = InputStreamReader(call.receiveStream())
                     when (val echoResponse = treeWareServer.echo(reader)) {
-                        is EchoResponse.ErrorList -> call.respondTextWriter(
-                            ContentType.Text.Plain,
-                            HttpStatusCode.BadRequest
-                        ) {
-                            writeStringList(this, echoResponse.errorList)
-                        }
-                        is EchoResponse.Model -> call.respondTextWriter {
+                        is EchoResponse.Model -> call.respondTextWriter(ContentType.Application.Json) {
                             // TODO(deepak-nulu): get prettyPrint value from URL query-param.
                             // TODO(deepak-nulu): get encodePasswords value from URL query-param.
                             // TODO(deepak-nulu): report decodeErrors once they are in aux form.
@@ -44,6 +40,12 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                                 true
                             )
                         }
+                        is EchoResponse.ErrorList -> call.respondTextWriter(
+                            ContentType.Text.Plain,
+                            HttpStatusCode.BadRequest
+                        ) {
+                            writeStringList(this, echoResponse.errorList)
+                        }
                     }
                 }
             }
@@ -53,10 +55,10 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                     val reader = InputStreamReader(call.receiveStream())
                     when (val setResponse = treeWareServer.set(reader)) {
                         is SetResponse.ErrorList -> call.respondTextWriter(
-                            ContentType.Text.Plain,
+                            ContentType.Application.Json,
                             HttpStatusCode.BadRequest
                         ) {
-                            writeStringList(this, setResponse.errorList)
+                            writeErrorList(this, setResponse.errorList, true)
                         }
                         is SetResponse.ErrorModel -> call.respondTextWriter(
                             ContentType.Application.Json,
@@ -80,7 +82,7 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                 withContext(Dispatchers.IO) {
                     val reader = InputStreamReader(call.receiveStream())
                     when (val getResponse = treeWareServer.get(reader)) {
-                        is GetResponse.Model -> call.respondTextWriter {
+                        is GetResponse.Model -> call.respondTextWriter(ContentType.Application.Json) {
                             // TODO(deepak-nulu): get prettyPrint value from URL query-param.
                             // TODO(deepak-nulu): get encodePasswords value from URL query-param.
                             // TODO(deepak-nulu): report decodeErrors once they are in aux form.
@@ -93,10 +95,11 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                             )
                         }
                         is GetResponse.ErrorList -> call.respondTextWriter(
-                            ContentType.Text.Plain,
+                            ContentType.Application.Json,
                             HttpStatusCode.BadRequest
                         ) {
-                            writeStringList(this, getResponse.errorList)
+                            // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+                            writeErrorList(this, getResponse.errorList, true)
                         }
                         is GetResponse.ErrorModel -> call.respondTextWriter(
                             ContentType.Application.Json,
@@ -125,4 +128,16 @@ private fun writeStringList(writer: Writer, list: List<String>) {
         if (index != 0) writer.appendLine()
         writer.append(error)
     }
+}
+
+private fun writeErrorList(writer: Writer, errorList: List<ElementModelError>, prettyPrint: Boolean) {
+    val encoder = JsonWireFormatEncoder(writer, prettyPrint)
+    encoder.encodeListStart(null)
+    errorList.forEach { error ->
+        encoder.encodeObjectStart(null)
+        encoder.encodeStringField("path", error.path)
+        encoder.encodeStringField("error", error.error)
+        encoder.encodeObjectEnd()
+    }
+    encoder.encodeListEnd()
 }

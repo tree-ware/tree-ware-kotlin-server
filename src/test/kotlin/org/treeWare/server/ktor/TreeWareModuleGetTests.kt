@@ -10,6 +10,7 @@ import org.treeWare.metaModel.addressBookMetaModel
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.encodeJson
 import org.treeWare.model.getMainModelFromJsonString
+import org.treeWare.model.operator.ElementModelError
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.model.readFile
@@ -41,10 +42,16 @@ class TreeWareModuleGetTests {
             val response = client.post("/tree-ware/api/get/address-book") {
                 setBody("")
             }
-            val expectedErrors =
-                listOf("Invalid token=EOF at (line no=1, column no=0, offset=-1). Expected tokens are: [CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]")
+            val expectedErrors = """
+                |[
+                |  {
+                |    "path": "",
+                |    "error": "Invalid token=EOF at (line no=1, column no=0, offset=-1). Expected tokens are: [CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]"
+                |  }
+                |]
+            """.trimMargin()
             assertEquals(HttpStatusCode.BadRequest, response.status)
-            assertEquals(expectedErrors.joinToString("\n"), response.bodyAsText())
+            assertEquals(expectedErrors, response.bodyAsText())
         }
 
         verify {
@@ -72,9 +79,16 @@ class TreeWareModuleGetTests {
             val response = client.post("/tree-ware/api/get/address-book") {
                 setBody(getRequest)
             }
-            val expectedErrors = listOf("Unauthorized")
+            val expectedErrors = """
+                |[
+                |  {
+                |    "path": "",
+                |    "error": "Unauthorized"
+                |  }
+                |]
+            """.trimMargin()
             assertEquals(HttpStatusCode.BadRequest, response.status)
-            assertEquals(expectedErrors.joinToString("\n"), response.bodyAsText())
+            assertEquals(expectedErrors, response.bodyAsText())
         }
 
         verify {
@@ -84,7 +98,7 @@ class TreeWareModuleGetTests {
 
     @Test
     fun `Errors returned by getter must be returned as get-response`() {
-        val errorList = listOf("Error 1", "Error 2")
+        val errorList = listOf(ElementModelError("", "Error 1"), ElementModelError("/", "Error 2"))
         val getter = mockk<Getter>()
         every { getter.invoke(ofType()) } returns GetResponse.ErrorList(errorList)
 
@@ -104,8 +118,20 @@ class TreeWareModuleGetTests {
             val response = client.post("/tree-ware/api/get/address-book") {
                 setBody(getRequest)
             }
+            val expectedErrors = """
+                |[
+                |  {
+                |    "path": "",
+                |    "error": "Error 1"
+                |  },
+                |  {
+                |    "path": "/",
+                |    "error": "Error 2"
+                |  }
+                |]
+            """.trimMargin()
             assertEquals(HttpStatusCode.BadRequest, response.status)
-            assertEquals(errorList.joinToString("\n"), response.bodyAsText())
+            assertEquals(expectedErrors, response.bodyAsText())
         }
 
         verifySequence {

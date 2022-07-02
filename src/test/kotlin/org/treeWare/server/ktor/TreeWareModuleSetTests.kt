@@ -8,6 +8,7 @@ import io.mockk.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.addressBookMetaModel
 import org.treeWare.model.getMainModelFromJsonString
+import org.treeWare.model.operator.ElementModelError
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.model.operator.set.aux.SetAuxPlugin
@@ -39,10 +40,16 @@ class TreeWareModuleSetTests {
             val response = client.post("/tree-ware/api/set/address-book") {
                 setBody("")
             }
-            val expectedErrors =
-                listOf("Invalid token=EOF at (line no=1, column no=0, offset=-1). Expected tokens are: [CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]")
+            val expectedErrors = """
+                |[
+                |  {
+                |    "path": "",
+                |    "error": "Invalid token=EOF at (line no=1, column no=0, offset=-1). Expected tokens are: [CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]"
+                |  }
+                |]
+            """.trimMargin()
             assertEquals(HttpStatusCode.BadRequest, response.status)
-            assertEquals(expectedErrors.joinToString("\n"), response.bodyAsText())
+            assertEquals(expectedErrors, response.bodyAsText())
         }
 
         verify {
@@ -77,9 +84,16 @@ class TreeWareModuleSetTests {
             val response = client.post("/tree-ware/api/set/address-book") {
                 setBody(setRequest)
             }
-            val expectedErrors = listOf("Unauthorized")
+            val expectedErrors = """
+                |[
+                |  {
+                |    "path": "",
+                |    "error": "Unauthorized"
+                |  }
+                |]
+            """.trimMargin()
             assertEquals(HttpStatusCode.BadRequest, response.status)
-            assertEquals(expectedErrors.joinToString("\n"), response.bodyAsText())
+            assertEquals(expectedErrors, response.bodyAsText())
         }
 
         verify {
@@ -126,7 +140,7 @@ class TreeWareModuleSetTests {
 
     @Test
     fun `Error list returned by setter must be returned in set-response`() {
-        val errorList = listOf("Error 1", "Error 2")
+        val errorList = listOf(ElementModelError("", "Error 1"), ElementModelError("/", "Error 2"))
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns SetResponse.ErrorList(errorList)
 
@@ -152,8 +166,20 @@ class TreeWareModuleSetTests {
             val response = client.post("/tree-ware/api/set/address-book") {
                 setBody(setRequest)
             }
+            val expectedErrors = """
+                |[
+                |  {
+                |    "path": "",
+                |    "error": "Error 1"
+                |  },
+                |  {
+                |    "path": "/",
+                |    "error": "Error 2"
+                |  }
+                |]
+            """.trimMargin()
             assertEquals(HttpStatusCode.BadRequest, response.status)
-            assertEquals(errorList.joinToString("\n"), response.bodyAsText())
+            assertEquals(expectedErrors, response.bodyAsText())
         }
 
         verifySequence {

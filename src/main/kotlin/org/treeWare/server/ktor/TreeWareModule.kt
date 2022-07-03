@@ -54,6 +54,7 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                 withContext(Dispatchers.IO) {
                     val reader = InputStreamReader(call.receiveStream())
                     when (val setResponse = treeWareServer.set(reader)) {
+                        is SetResponse.Success -> call.respond(HttpStatusCode.OK, "")
                         is SetResponse.ErrorList -> call.respondTextWriter(
                             ContentType.Application.Json,
                             HttpStatusCode.BadRequest

@@ -6,7 +6,9 @@ import io.mockk.verifyOrder
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.aux.MetaModelAuxPlugin
 import org.treeWare.model.decoder.stateMachine.StringAuxStateMachine
+import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.get.GetResponse
+import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.server.addressBookPermitAllRbacGetter
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -28,7 +30,7 @@ class TreeWareServerMetaModelAuxPluginTests {
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { null }) { GetResponse.ErrorList(emptyList()) }
+            { SetResponse.Success }) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
 
         // TODO(deepak-nulu): change this to verifySequence. Currently auxName
         // and auxDecodingStateMachineFactory get called multiple times. This
@@ -58,7 +60,7 @@ class TreeWareServerMetaModelAuxPluginTests {
                 emptyList(),
                 {},
                 ::addressBookPermitAllRbacGetter,
-                { null }) { GetResponse.ErrorList(emptyList()) }
+                { SetResponse.Success }) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         }
 
         // TODO(deepak-nulu): change this to verifySequence. See TODO above for details.

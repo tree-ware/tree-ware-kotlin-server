@@ -9,6 +9,7 @@ import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.addressBookMetaModel
 import org.treeWare.model.getMainModelFromJsonString
 import org.treeWare.model.operator.ElementModelError
+import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.model.operator.set.aux.SetAuxPlugin
@@ -24,7 +25,7 @@ class TreeWareModuleSetTests {
     @Test
     fun `A set-request with an invalid model must not call the setter`() {
         val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns null
+        every { setter.invoke(ofType()) } returns SetResponse.Success
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
@@ -34,7 +35,7 @@ class TreeWareModuleSetTests {
             {},
             ::addressBookPermitAllRbacGetter,
             setter
-        ) { GetResponse.ErrorList(emptyList()) }
+        ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
             application { treeWareModule(treeWareServer) }
             val response = client.post("/tree-ware/api/set/address-book") {
@@ -60,7 +61,7 @@ class TreeWareModuleSetTests {
     @Test
     fun `A set-request that is completely denied by RBAC must return an error and must not call the setter`() {
         val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns null
+        every { setter.invoke(ofType()) } returns SetResponse.Success
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
@@ -70,7 +71,7 @@ class TreeWareModuleSetTests {
             {},
             ::addressBookPermitNoneRbacGetter,
             setter
-        ) { GetResponse.ErrorList(emptyList()) }
+        ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
             application { treeWareModule(treeWareServer) }
             val setRequest = """
@@ -92,7 +93,7 @@ class TreeWareModuleSetTests {
                 |  }
                 |]
             """.trimMargin()
-            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertEquals(HttpStatusCode.Forbidden, response.status)
             assertEquals(expectedErrors, response.bodyAsText())
         }
 
@@ -104,7 +105,7 @@ class TreeWareModuleSetTests {
     @Test
     fun `A set-request with a valid model must call the setter`() {
         val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns null
+        every { setter.invoke(ofType()) } returns SetResponse.Success
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
@@ -114,7 +115,7 @@ class TreeWareModuleSetTests {
             {},
             ::addressBookPermitAllRbacGetter,
             setter
-        ) { GetResponse.ErrorList(emptyList()) }
+        ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
             application { treeWareModule(treeWareServer) }
             val setRequest = """
@@ -142,7 +143,7 @@ class TreeWareModuleSetTests {
     fun `Error list returned by setter must be returned in set-response`() {
         val errorList = listOf(ElementModelError("", "Error 1"), ElementModelError("/", "Error 2"))
         val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns SetResponse.ErrorList(errorList)
+        every { setter.invoke(ofType()) } returns SetResponse.ErrorList(ErrorCode.CLIENT_ERROR, errorList)
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
@@ -152,7 +153,7 @@ class TreeWareModuleSetTests {
             {},
             ::addressBookPermitAllRbacGetter,
             setter
-        ) { GetResponse.ErrorList(emptyList()) }
+        ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
             application { treeWareModule(treeWareServer) }
             val setRequest = """
@@ -194,7 +195,7 @@ class TreeWareModuleSetTests {
         val errorModel = getMainModelFromJsonString(addressBookMetaModel, errorJson)
 
         val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns SetResponse.ErrorModel(errorModel)
+        every { setter.invoke(ofType()) } returns SetResponse.ErrorModel(ErrorCode.CLIENT_ERROR, errorModel)
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
@@ -204,7 +205,7 @@ class TreeWareModuleSetTests {
             {},
             ::addressBookPermitAllRbacGetter,
             setter
-        ) { GetResponse.ErrorList(emptyList()) }
+        ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
             application { treeWareModule(treeWareServer) }
             val setRequest = """

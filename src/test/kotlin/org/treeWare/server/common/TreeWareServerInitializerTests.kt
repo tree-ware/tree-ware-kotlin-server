@@ -4,7 +4,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
+import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.get.GetResponse
+import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.server.addressBookPermitAllRbacGetter
 import kotlin.test.Test
 
@@ -20,8 +22,8 @@ class TreeWareServerInitializerTests {
             emptyList(),
             initializer,
             ::addressBookPermitAllRbacGetter,
-            { null }) {
-            GetResponse.ErrorList(emptyList())
+            { SetResponse.Success }) {
+            GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList())
         }
         verify { initializer.invoke(ofType()) }
     }

@@ -11,6 +11,7 @@ import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.JsonWireFormatEncoder
 import org.treeWare.model.encoder.encodeJson
 import org.treeWare.model.operator.ElementModelError
+import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.server.common.EchoResponse
@@ -27,8 +28,10 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                 // TODO(deepak-nulu): load-test to ensure InputStream does not limit concurrency
                 withContext(Dispatchers.IO) {
                     val reader = InputStreamReader(call.receiveStream())
-                    when (val echoResponse = treeWareServer.echo(reader)) {
-                        is EchoResponse.Model -> call.respondTextWriter(ContentType.Application.Json) {
+                    val echoResponse = treeWareServer.echo(reader)
+                    val httpStatusCode = echoResponse.errorCode.toHttpStatusCode()
+                    when (echoResponse) {
+                        is EchoResponse.Model -> call.respondTextWriter(ContentType.Application.Json, httpStatusCode) {
                             // TODO(deepak-nulu): get prettyPrint value from URL query-param.
                             // TODO(deepak-nulu): get encodePasswords value from URL query-param.
                             // TODO(deepak-nulu): report decodeErrors once they are in aux form.
@@ -40,10 +43,7 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                                 true
                             )
                         }
-                        is EchoResponse.ErrorList -> call.respondTextWriter(
-                            ContentType.Text.Plain,
-                            HttpStatusCode.BadRequest
-                        ) {
+                        is EchoResponse.ErrorList -> call.respondTextWriter(ContentType.Text.Plain, httpStatusCode) {
                             writeStringList(this, echoResponse.errorList)
                         }
                     }
@@ -53,17 +53,19 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
             post("set/$mainMetaName") {
                 withContext(Dispatchers.IO) {
                     val reader = InputStreamReader(call.receiveStream())
-                    when (val setResponse = treeWareServer.set(reader)) {
-                        is SetResponse.Success -> call.respond(HttpStatusCode.OK, "")
+                    val setResponse = treeWareServer.set(reader)
+                    val httpStatusCode = setResponse.errorCode.toHttpStatusCode()
+                    when (setResponse) {
+                        is SetResponse.Success -> call.respond(httpStatusCode, "")
                         is SetResponse.ErrorList -> call.respondTextWriter(
                             ContentType.Application.Json,
-                            HttpStatusCode.BadRequest
+                            httpStatusCode
                         ) {
                             writeErrorList(this, setResponse.errorList, true)
                         }
                         is SetResponse.ErrorModel -> call.respondTextWriter(
                             ContentType.Application.Json,
-                            HttpStatusCode.BadRequest
+                            httpStatusCode
                         ) {
                             // TODO(deepak-nulu): get prettyPrint value from URL query-param.
                             encodeJson(
@@ -74,7 +76,6 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                                 true
                             )
                         }
-                        null -> call.respondText("")
                     }
                 }
             }
@@ -82,8 +83,10 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
             post("get/$mainMetaName") {
                 withContext(Dispatchers.IO) {
                     val reader = InputStreamReader(call.receiveStream())
-                    when (val getResponse = treeWareServer.get(reader)) {
-                        is GetResponse.Model -> call.respondTextWriter(ContentType.Application.Json) {
+                    val getResponse = treeWareServer.get(reader)
+                    val httpStatusCode = getResponse.errorCode.toHttpStatusCode()
+                    when (getResponse) {
+                        is GetResponse.Model -> call.respondTextWriter(ContentType.Application.Json, httpStatusCode) {
                             // TODO(deepak-nulu): get prettyPrint value from URL query-param.
                             // TODO(deepak-nulu): get encodePasswords value from URL query-param.
                             // TODO(deepak-nulu): report decodeErrors once they are in aux form.
@@ -97,14 +100,14 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
                         }
                         is GetResponse.ErrorList -> call.respondTextWriter(
                             ContentType.Application.Json,
-                            HttpStatusCode.BadRequest
+                            httpStatusCode
                         ) {
                             // TODO(deepak-nulu): get prettyPrint value from URL query-param.
                             writeErrorList(this, getResponse.errorList, true)
                         }
                         is GetResponse.ErrorModel -> call.respondTextWriter(
                             ContentType.Application.Json,
-                            HttpStatusCode.BadRequest
+                            httpStatusCode
                         ) {
                             // TODO(deepak-nulu): get prettyPrint value from URL query-param.
                             encodeJson(
@@ -123,6 +126,14 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer) {
 }
 
 private fun snakeCaseToKebabCase(snake: String): String = snake.split("_").joinToString("-")
+
+private fun ErrorCode.toHttpStatusCode(): HttpStatusCode = when (this) {
+    ErrorCode.OK -> HttpStatusCode.OK
+    ErrorCode.UNAUTHENTICATED -> HttpStatusCode.Unauthorized
+    ErrorCode.UNAUTHORIZED -> HttpStatusCode.Forbidden
+    ErrorCode.CLIENT_ERROR -> HttpStatusCode.BadRequest
+    ErrorCode.SERVER_ERROR -> HttpStatusCode.InternalServerError
+}
 
 private fun writeStringList(writer: Writer, list: List<String>) {
     list.forEachIndexed { index, error ->

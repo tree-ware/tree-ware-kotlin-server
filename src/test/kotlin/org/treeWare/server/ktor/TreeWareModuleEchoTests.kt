@@ -5,7 +5,9 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
+import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.get.GetResponse
+import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.server.addressBookPermitAllRbacGetter
 import org.treeWare.server.common.TreeWareServer
 import org.treeWare.util.getFileReader
@@ -24,8 +26,8 @@ class TreeWareModuleEchoTests {
                 emptyList(),
                 {},
                 ::addressBookPermitAllRbacGetter,
-                { null }) {
-                GetResponse.ErrorList(emptyList())
+                { SetResponse.Success }) {
+                GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList())
             }
         testApplication {
             application { treeWareModule(treeWareServer) }
@@ -49,8 +51,8 @@ class TreeWareModuleEchoTests {
                 emptyList(),
                 {},
                 ::addressBookPermitAllRbacGetter,
-                { null }) {
-                GetResponse.ErrorList(emptyList())
+                { SetResponse.Success }) {
+                GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList())
             }
         testApplication {
             application { treeWareModule(treeWareServer) }

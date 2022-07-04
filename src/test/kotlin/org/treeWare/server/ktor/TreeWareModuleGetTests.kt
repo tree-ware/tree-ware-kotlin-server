@@ -11,6 +11,7 @@ import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.encodeJson
 import org.treeWare.model.getMainModelFromJsonString
 import org.treeWare.model.operator.ElementModelError
+import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.model.readFile
@@ -34,7 +35,7 @@ class TreeWareModuleGetTests {
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.ErrorList(emptyList()) },
+            { SetResponse.Success },
             getter
         )
         testApplication {
@@ -70,7 +71,7 @@ class TreeWareModuleGetTests {
             emptyList(),
             {},
             ::addressBookPermitNoneRbacGetter,
-            { SetResponse.ErrorList(emptyList()) },
+            { SetResponse.Success },
             getter
         )
         val getRequest = readFile("model/address_book_1.json")
@@ -87,7 +88,7 @@ class TreeWareModuleGetTests {
                 |  }
                 |]
             """.trimMargin()
-            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertEquals(HttpStatusCode.Forbidden, response.status)
             assertEquals(expectedErrors, response.bodyAsText())
         }
 
@@ -100,7 +101,7 @@ class TreeWareModuleGetTests {
     fun `Errors returned by getter must be returned as get-response`() {
         val errorList = listOf(ElementModelError("", "Error 1"), ElementModelError("/", "Error 2"))
         val getter = mockk<Getter>()
-        every { getter.invoke(ofType()) } returns GetResponse.ErrorList(errorList)
+        every { getter.invoke(ofType()) } returns GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, errorList)
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
@@ -109,7 +110,7 @@ class TreeWareModuleGetTests {
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.ErrorList(emptyList()) },
+            { SetResponse.Success },
             getter
         )
         val getRequest = readFile("model/address_book_1.json")
@@ -160,7 +161,7 @@ class TreeWareModuleGetTests {
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.ErrorList(emptyList()) },
+            { SetResponse.Success },
             getter
         )
         val getRequest = readFile("model/address_book_1.json")

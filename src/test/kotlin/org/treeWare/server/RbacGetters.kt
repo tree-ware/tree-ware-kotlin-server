@@ -5,7 +5,8 @@ import org.treeWare.model.operator.rbac.aux.PermissionScope
 import org.treeWare.model.operator.rbac.aux.PermissionsAux
 import org.treeWare.model.operator.rbac.aux.setPermissionsAux
 
-private const val CLARK_KENT_ID = "cc477201-48ec-4367-83a4-7fdbd92f8a6f"
+const val CLARK_KENT_ID = "cc477201-48ec-4367-83a4-7fdbd92f8a6f"
+const val LOIS_LANE_ID = "a8aacf55-7810-4b43-afe5-4344f25435fd"
 
 fun addressBookPermitAllRbacGetter(mainMeta: MainModel): MainModel {
     val rbac = MutableMainModel(mainMeta)

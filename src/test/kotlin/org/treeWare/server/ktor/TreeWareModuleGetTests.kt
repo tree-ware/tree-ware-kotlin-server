@@ -16,6 +16,7 @@ import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.model.readFile
 import org.treeWare.server.addressBookPermitAllRbacGetter
+import org.treeWare.server.addressBookPermitClarkKentRbacGetter
 import org.treeWare.server.addressBookPermitNoneRbacGetter
 import org.treeWare.server.common.Getter
 import org.treeWare.server.common.TreeWareServer
@@ -84,7 +85,44 @@ class TreeWareModuleGetTests {
                 |[
                 |  {
                 |    "path": "",
-                |    "error": "Unauthorized"
+                |    "error": "Fully unauthorized"
+                |  }
+                |]
+            """.trimMargin()
+            assertEquals(HttpStatusCode.Forbidden, response.status)
+            assertEquals(expectedErrors, response.bodyAsText())
+        }
+
+        verify {
+            getter wasNot called
+        }
+    }
+
+    @Test
+    fun `A get-request that is partially denied by RBAC must return an error and must not call the getter`() {
+        val getter = mockk<Getter>()
+
+        val treeWareServer = TreeWareServer(
+            ADDRESS_BOOK_META_MODEL_FILES,
+            false,
+            emptyList(),
+            emptyList(),
+            {},
+            ::addressBookPermitClarkKentRbacGetter,
+            { SetResponse.Success },
+            getter
+        )
+        val getRequest = readFile("model/address_book_1.json")
+        testApplication {
+            application { treeWareModule(treeWareServer) }
+            val response = client.post("/tree-ware/api/get/address-book") {
+                setBody(getRequest)
+            }
+            val expectedErrors = """
+                |[
+                |  {
+                |    "path": "",
+                |    "error": "Partially unauthorized"
                 |  }
                 |]
             """.trimMargin()

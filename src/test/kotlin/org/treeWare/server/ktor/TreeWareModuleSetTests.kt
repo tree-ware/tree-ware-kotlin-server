@@ -14,8 +14,7 @@ import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.model.operator.set.aux.SetAuxPlugin
 import org.treeWare.model.readFile
-import org.treeWare.server.addressBookPermitAllRbacGetter
-import org.treeWare.server.addressBookPermitNoneRbacGetter
+import org.treeWare.server.*
 import org.treeWare.server.common.Setter
 import org.treeWare.server.common.TreeWareServer
 import kotlin.test.Test
@@ -89,12 +88,64 @@ class TreeWareModuleSetTests {
                 |[
                 |  {
                 |    "path": "",
-                |    "error": "Unauthorized"
+                |    "error": "Fully unauthorized"
                 |  }
                 |]
             """.trimMargin()
             assertEquals(HttpStatusCode.Forbidden, response.status)
             assertEquals(expectedErrors, response.bodyAsText())
+        }
+
+        verify {
+            setter wasNot called
+        }
+    }
+
+    @Test
+    fun `A set-request that is partially denied by RBAC must return an error and must not call the setter`() {
+        val setter = mockk<Setter>()
+        every { setter.invoke(ofType()) } returns SetResponse.Success
+
+        val treeWareServer = TreeWareServer(
+            ADDRESS_BOOK_META_MODEL_FILES,
+            false,
+            emptyList(),
+            listOf(SetAuxPlugin()),
+            {},
+            ::addressBookPermitClarkKentRbacGetter,
+            setter
+        ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+        testApplication {
+            application { treeWareModule(treeWareServer) }
+            val setRequest = """
+                |{
+                |  "address_book__set_": "create",
+                |  "address_book": {
+                |    "name": "Super Heroes",
+                |    "person": [
+                |      {
+                |        "id": "$CLARK_KENT_ID"
+                |      },
+                |      {
+                |        "id": "$LOIS_LANE_ID"
+                |      }
+                |    ]
+                |  }
+                |}
+            """.trimMargin()
+            val response = client.post("/tree-ware/api/set/address-book") {
+                setBody(setRequest)
+            }
+            val expectedErrors = """
+                |[
+                |  {
+                |    "path": "",
+                |    "error": "Partially unauthorized"
+                |  }
+                |]
+            """.trimMargin()
+            assertEquals(expectedErrors, response.bodyAsText())
+            assertEquals(HttpStatusCode.Forbidden, response.status)
         }
 
         verify {

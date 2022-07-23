@@ -2,6 +2,7 @@ package org.treeWare.server.ktor
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -19,104 +20,115 @@ import org.treeWare.server.common.TreeWareServer
 import java.io.InputStreamReader
 import java.io.Writer
 
-fun Application.treeWareModule(treeWareServer: TreeWareServer) {
+fun Application.treeWareModule(treeWareServer: TreeWareServer, vararg authenticationProviderNames: String?) {
     val mainMetaName = snakeCaseToKebabCase(treeWareServer.mainMetaName)
 
     routing {
-        route("/tree-ware/api") {
-            post("echo/$mainMetaName") {
-                // TODO(deepak-nulu): load-test to ensure InputStream does not limit concurrency
-                withContext(Dispatchers.IO) {
-                    val reader = InputStreamReader(call.receiveStream())
-                    val echoResponse = treeWareServer.echo(reader)
-                    val httpStatusCode = echoResponse.errorCode.toHttpStatusCode()
-                    when (echoResponse) {
-                        is EchoResponse.Model -> call.respondTextWriter(ContentType.Application.Json, httpStatusCode) {
-                            // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-                            // TODO(deepak-nulu): get encodePasswords value from URL query-param.
-                            // TODO(deepak-nulu): report decodeErrors once they are in aux form.
-                            encodeJson(
-                                echoResponse.model,
-                                this,
-                                treeWareServer.modelMultiAuxEncoder,
-                                EncodePasswords.ALL,
-                                true
-                            )
-                        }
-                        is EchoResponse.ErrorList -> call.respondTextWriter(ContentType.Text.Plain, httpStatusCode) {
-                            writeStringList(this, echoResponse.errorList)
-                        }
-                    }
-                }
-            }
-
-            post("set/$mainMetaName") {
-                withContext(Dispatchers.IO) {
-                    val reader = InputStreamReader(call.receiveStream())
-                    val setResponse = treeWareServer.set(reader)
-                    val httpStatusCode = setResponse.errorCode.toHttpStatusCode()
-                    when (setResponse) {
-                        is SetResponse.Success -> call.respond(httpStatusCode, "")
-                        is SetResponse.ErrorList -> call.respondTextWriter(
-                            ContentType.Application.Json,
-                            httpStatusCode
-                        ) {
-                            writeErrorList(this, setResponse.errorList, true)
-                        }
-                        is SetResponse.ErrorModel -> call.respondTextWriter(
-                            ContentType.Application.Json,
-                            httpStatusCode
-                        ) {
-                            // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-                            encodeJson(
-                                setResponse.errorModel,
-                                this,
-                                treeWareServer.modelMultiAuxEncoder,
-                                EncodePasswords.ALL,
-                                true
-                            )
+        authenticate(*authenticationProviderNames) {
+            route("/tree-ware/api") {
+                post("echo/$mainMetaName") {
+                    // TODO(deepak-nulu): load-test to ensure InputStream does not limit concurrency
+                    withContext(Dispatchers.IO) {
+                        val reader = InputStreamReader(call.receiveStream())
+                        val echoResponse = treeWareServer.echo(reader)
+                        val httpStatusCode = echoResponse.errorCode.toHttpStatusCode()
+                        when (echoResponse) {
+                            is EchoResponse.Model -> call.respondTextWriter(
+                                ContentType.Application.Json,
+                                httpStatusCode
+                            ) {
+                                // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+                                // TODO(deepak-nulu): get encodePasswords value from URL query-param.
+                                // TODO(deepak-nulu): report decodeErrors once they are in aux form.
+                                encodeJson(
+                                    echoResponse.model,
+                                    this,
+                                    treeWareServer.modelMultiAuxEncoder,
+                                    EncodePasswords.ALL,
+                                    true
+                                )
+                            }
+                            is EchoResponse.ErrorList -> call.respondTextWriter(
+                                ContentType.Text.Plain,
+                                httpStatusCode
+                            ) {
+                                writeStringList(this, echoResponse.errorList)
+                            }
                         }
                     }
                 }
-            }
 
-            post("get/$mainMetaName") {
-                withContext(Dispatchers.IO) {
-                    val reader = InputStreamReader(call.receiveStream())
-                    val getResponse = treeWareServer.get(reader)
-                    val httpStatusCode = getResponse.errorCode.toHttpStatusCode()
-                    when (getResponse) {
-                        is GetResponse.Model -> call.respondTextWriter(ContentType.Application.Json, httpStatusCode) {
-                            // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-                            // TODO(deepak-nulu): get encodePasswords value from URL query-param.
-                            // TODO(deepak-nulu): report decodeErrors once they are in aux form.
-                            encodeJson(
-                                getResponse.model,
-                                this,
-                                treeWareServer.modelMultiAuxEncoder,
-                                EncodePasswords.ALL,
-                                true
-                            )
+                post("set/$mainMetaName") {
+                    withContext(Dispatchers.IO) {
+                        val reader = InputStreamReader(call.receiveStream())
+                        val setResponse = treeWareServer.set(reader)
+                        val httpStatusCode = setResponse.errorCode.toHttpStatusCode()
+                        when (setResponse) {
+                            is SetResponse.Success -> call.respond(httpStatusCode, "")
+                            is SetResponse.ErrorList -> call.respondTextWriter(
+                                ContentType.Application.Json,
+                                httpStatusCode
+                            ) {
+                                writeErrorList(this, setResponse.errorList, true)
+                            }
+                            is SetResponse.ErrorModel -> call.respondTextWriter(
+                                ContentType.Application.Json,
+                                httpStatusCode
+                            ) {
+                                // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+                                encodeJson(
+                                    setResponse.errorModel,
+                                    this,
+                                    treeWareServer.modelMultiAuxEncoder,
+                                    EncodePasswords.ALL,
+                                    true
+                                )
+                            }
                         }
-                        is GetResponse.ErrorList -> call.respondTextWriter(
-                            ContentType.Application.Json,
-                            httpStatusCode
-                        ) {
-                            // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-                            writeErrorList(this, getResponse.errorList, true)
-                        }
-                        is GetResponse.ErrorModel -> call.respondTextWriter(
-                            ContentType.Application.Json,
-                            httpStatusCode
-                        ) {
-                            // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-                            encodeJson(
-                                getResponse.errorModel,
-                                this,
-                                treeWareServer.modelMultiAuxEncoder,
-                                EncodePasswords.ALL,
-                                true
-                            )
+                    }
+                }
+
+                post("get/$mainMetaName") {
+                    withContext(Dispatchers.IO) {
+                        val reader = InputStreamReader(call.receiveStream())
+                        val getResponse = treeWareServer.get(reader)
+                        val httpStatusCode = getResponse.errorCode.toHttpStatusCode()
+                        when (getResponse) {
+                            is GetResponse.Model -> call.respondTextWriter(
+                                ContentType.Application.Json,
+                                httpStatusCode
+                            ) {
+                                // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+                                // TODO(deepak-nulu): get encodePasswords value from URL query-param.
+                                // TODO(deepak-nulu): report decodeErrors once they are in aux form.
+                                encodeJson(
+                                    getResponse.model,
+                                    this,
+                                    treeWareServer.modelMultiAuxEncoder,
+                                    EncodePasswords.ALL,
+                                    true
+                                )
+                            }
+                            is GetResponse.ErrorList -> call.respondTextWriter(
+                                ContentType.Application.Json,
+                                httpStatusCode
+                            ) {
+                                // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+                                writeErrorList(this, getResponse.errorList, true)
+                            }
+                            is GetResponse.ErrorModel -> call.respondTextWriter(
+                                ContentType.Application.Json,
+                                httpStatusCode
+                            ) {
+                                // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+                                encodeJson(
+                                    getResponse.errorModel,
+                                    this,
+                                    treeWareServer.modelMultiAuxEncoder,
+                                    EncodePasswords.ALL,
+                                    true
+                                )
+                            }
                         }
                     }
                 }

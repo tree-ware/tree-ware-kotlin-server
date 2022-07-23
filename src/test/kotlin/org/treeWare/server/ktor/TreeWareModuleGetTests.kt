@@ -15,9 +15,7 @@ import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.model.readFile
-import org.treeWare.server.addressBookPermitAllRbacGetter
-import org.treeWare.server.addressBookPermitClarkKentRbacGetter
-import org.treeWare.server.addressBookPermitNoneRbacGetter
+import org.treeWare.server.*
 import org.treeWare.server.common.Getter
 import org.treeWare.server.common.TreeWareServer
 import java.io.StringWriter
@@ -40,8 +38,12 @@ class TreeWareModuleGetTests {
             getter
         )
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val response = client.post("/tree-ware/api/get/address-book") {
+                addValidApiKeyHeader()
                 setBody("")
             }
             val expectedErrors = """
@@ -77,8 +79,12 @@ class TreeWareModuleGetTests {
         )
         val getRequest = readFile("model/address_book_1.json")
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val response = client.post("/tree-ware/api/get/address-book") {
+                addValidApiKeyHeader()
                 setBody(getRequest)
             }
             val expectedErrors = """
@@ -114,8 +120,12 @@ class TreeWareModuleGetTests {
         )
         val getRequest = readFile("model/address_book_1.json")
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val response = client.post("/tree-ware/api/get/address-book") {
+                addValidApiKeyHeader()
                 setBody(getRequest)
             }
             val expectedErrors = """
@@ -153,8 +163,12 @@ class TreeWareModuleGetTests {
         )
         val getRequest = readFile("model/address_book_1.json")
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val response = client.post("/tree-ware/api/get/address-book") {
+                addValidApiKeyHeader()
                 setBody(getRequest)
             }
             val expectedErrors = """
@@ -204,8 +218,12 @@ class TreeWareModuleGetTests {
         )
         val getRequest = readFile("model/address_book_1.json")
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val response = client.post("/tree-ware/api/get/address-book") {
+                addValidApiKeyHeader()
                 setBody(getRequest)
             }
             assertEquals(HttpStatusCode.OK, response.status)

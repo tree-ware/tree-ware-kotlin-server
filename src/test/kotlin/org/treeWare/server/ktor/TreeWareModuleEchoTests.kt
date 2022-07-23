@@ -8,8 +8,11 @@ import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
+import org.treeWare.server.TEST_AUTHENTICATION_PROVIDER_NAME
+import org.treeWare.server.addValidApiKeyHeader
 import org.treeWare.server.addressBookPermitAllRbacGetter
 import org.treeWare.server.common.TreeWareServer
+import org.treeWare.server.installTestAuthentication
 import org.treeWare.util.getFileReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,8 +33,12 @@ class TreeWareModuleEchoTests {
                 GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList())
             }
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val response = client.post("/tree-ware/api/echo/address-book") {
+                addValidApiKeyHeader()
                 setBody("")
             }
             val expectedErrors =
@@ -55,11 +62,15 @@ class TreeWareModuleEchoTests {
                 GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList())
             }
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val modelJsonReader = getFileReader("model/address_book_1.json")
             assertNotNull(modelJsonReader)
             val modelJson = modelJsonReader.readText()
             val response = client.post("/tree-ware/api/echo/address-book") {
+                addValidApiKeyHeader()
                 setBody(modelJson)
             }
             assertEquals(HttpStatusCode.OK, response.status)

@@ -36,8 +36,12 @@ class TreeWareModuleSetTests {
             setter
         ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val response = client.post("/tree-ware/api/set/address-book") {
+                addValidApiKeyHeader()
                 setBody("")
             }
             val expectedErrors = """
@@ -72,7 +76,10 @@ class TreeWareModuleSetTests {
             setter
         ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val setRequest = """
                 |{
                 |  "address_book__set_": "create",
@@ -82,6 +89,7 @@ class TreeWareModuleSetTests {
                 |}
             """.trimMargin()
             val response = client.post("/tree-ware/api/set/address-book") {
+                addValidApiKeyHeader()
                 setBody(setRequest)
             }
             val expectedErrors = """
@@ -116,7 +124,10 @@ class TreeWareModuleSetTests {
             setter
         ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val setRequest = """
                 |{
                 |  "address_book__set_": "create",
@@ -134,6 +145,7 @@ class TreeWareModuleSetTests {
                 |}
             """.trimMargin()
             val response = client.post("/tree-ware/api/set/address-book") {
+                addValidApiKeyHeader()
                 setBody(setRequest)
             }
             val expectedErrors = """
@@ -168,7 +180,10 @@ class TreeWareModuleSetTests {
             setter
         ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val setRequest = """
                 |{
                 |  "address_book__set_": "create",
@@ -178,6 +193,7 @@ class TreeWareModuleSetTests {
                 |}
             """.trimMargin()
             val response = client.post("/tree-ware/api/set/address-book") {
+                addValidApiKeyHeader()
                 setBody(setRequest)
             }
             assertEquals(HttpStatusCode.OK, response.status)
@@ -206,7 +222,10 @@ class TreeWareModuleSetTests {
             setter
         ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val setRequest = """
                 |{
                 |  "address_book__set_": "create",
@@ -216,6 +235,7 @@ class TreeWareModuleSetTests {
                 |}
             """.trimMargin()
             val response = client.post("/tree-ware/api/set/address-book") {
+                addValidApiKeyHeader()
                 setBody(setRequest)
             }
             val expectedErrors = """
@@ -258,7 +278,10 @@ class TreeWareModuleSetTests {
             setter
         ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
-            application { treeWareModule(treeWareServer) }
+            application {
+                installTestAuthentication()
+                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
+            }
             val setRequest = """
                 |{
                 |  "address_book__set_": "create",
@@ -268,6 +291,7 @@ class TreeWareModuleSetTests {
                 |}
             """.trimMargin()
             val response = client.post("/tree-ware/api/set/address-book") {
+                addValidApiKeyHeader()
                 setBody(setRequest)
             }
             assertEquals(HttpStatusCode.BadRequest, response.status)

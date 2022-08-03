@@ -135,10 +135,14 @@ class TreeWareModuleSetTests {
                 |    "name": "Super Heroes",
                 |    "person": [
                 |      {
-                |        "id": "$CLARK_KENT_ID"
+                |        "id": "$CLARK_KENT_ID",
+                |        "first_name": "Clark",
+                |        "last_name": "Kent"
                 |      },
                 |      {
-                |        "id": "$LOIS_LANE_ID"
+                |        "id": "$LOIS_LANE_ID",
+                |        "first_name": "Lois",
+                |        "last_name": "Lane"
                 |      }
                 |    ]
                 |  }

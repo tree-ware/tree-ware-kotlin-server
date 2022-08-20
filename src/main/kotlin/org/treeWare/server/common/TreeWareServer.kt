@@ -5,6 +5,7 @@ import org.treeWare.metaModel.aux.MetaModelAuxPlugin
 import org.treeWare.metaModel.getMainMetaName
 import org.treeWare.metaModel.newMetaModelFromJsonFiles
 import org.treeWare.model.core.MainModel
+import org.treeWare.model.core.MutableMainModel
 import org.treeWare.model.decoder.decodeJson
 import org.treeWare.model.decoder.stateMachine.MultiAuxDecodingStateMachineFactory
 import org.treeWare.model.encoder.MultiAuxEncoder
@@ -28,7 +29,7 @@ sealed class EchoResponse(open val errorCode: ErrorCode) {
 typealias RbacGetter = (mainMeta: MainModel) -> MainModel
 
 /** Set the model and returns errors if any. */
-typealias Setter = (mainModel: MainModel) -> SetResponse
+typealias Setter = (mainModel: MutableMainModel) -> SetResponse
 
 /** Return the requested model or errors if any. */
 typealias Getter = (request: MainModel) -> GetResponse

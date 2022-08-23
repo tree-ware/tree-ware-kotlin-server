@@ -137,12 +137,14 @@ class TreeWareModuleSetTests {
                 |      {
                 |        "id": "$CLARK_KENT_ID",
                 |        "first_name": "Clark",
-                |        "last_name": "Kent"
+                |        "last_name": "Kent",
+                |        "is_hero": true
                 |      },
                 |      {
                 |        "id": "$LOIS_LANE_ID",
                 |        "first_name": "Lois",
-                |        "last_name": "Lane"
+                |        "last_name": "Lane",
+                |        "is_hero": false
                 |      }
                 |    ]
                 |  }

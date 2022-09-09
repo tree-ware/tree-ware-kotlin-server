@@ -100,6 +100,8 @@ class TreeWareServer(
             decodeErrors.map { ElementModelError("", it) })
         val validationErrors = validateSet(model)
         if (validationErrors.isNotEmpty()) return SetResponse.ErrorList(ErrorCode.CLIENT_ERROR, validationErrors)
+        val granularityErrors = populateSubTreeGranularityDeleteRequest(model)
+        if (granularityErrors.isNotEmpty()) return SetResponse.ErrorList(ErrorCode.CLIENT_ERROR, granularityErrors)
         val rbac = rbacGetter(metaModel)
         return when (val permitResponse = permitSet(model, rbac)) {
             is FullyPermitted -> setter(permitResponse.permitted)

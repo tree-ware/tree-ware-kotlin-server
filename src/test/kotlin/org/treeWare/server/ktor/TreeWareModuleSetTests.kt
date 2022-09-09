@@ -7,11 +7,16 @@ import io.ktor.server.testing.*
 import io.mockk.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.addressBookMetaModel
+import org.treeWare.model.assertMatchesJsonString
+import org.treeWare.model.encoder.EncodePasswords
+import org.treeWare.model.encoder.MultiAuxEncoder
 import org.treeWare.model.getMainModelFromJsonString
 import org.treeWare.model.operator.ElementModelError
 import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
+import org.treeWare.model.operator.set.aux.SET_AUX_NAME
+import org.treeWare.model.operator.set.aux.SetAuxEncoder
 import org.treeWare.model.operator.set.aux.SetAuxPlugin
 import org.treeWare.model.readFile
 import org.treeWare.server.*
@@ -19,6 +24,8 @@ import org.treeWare.server.common.Setter
 import org.treeWare.server.common.TreeWareServer
 import kotlin.test.Test
 import kotlin.test.assertEquals
+
+private val multiAuxEncoder = MultiAuxEncoder(SET_AUX_NAME to SetAuxEncoder())
 
 class TreeWareModuleSetTests {
     @Test
@@ -176,6 +183,15 @@ class TreeWareModuleSetTests {
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns SetResponse.Success
 
+        val setRequest = """
+                |{
+                |  "address_book__set_": "create",
+                |  "address_book": {
+                |    "name": "Super Heroes"
+                |  }
+                |}
+            """.trimMargin()
+
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
             false,
@@ -190,14 +206,6 @@ class TreeWareModuleSetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val setRequest = """
-                |{
-                |  "address_book__set_": "create",
-                |  "address_book": {
-                |    "name": "Super Heroes"
-                |  }
-                |}
-            """.trimMargin()
             val response = client.post("/tree-ware/api/set/address-book") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
@@ -207,8 +215,9 @@ class TreeWareModuleSetTests {
         }
 
         verifySequence {
-            // TODO(deepak-nulu): validate the model passed to the setter.
-            setter.invoke(ofType())
+            setter.invoke(withArg {
+                assertMatchesJsonString(it, setRequest, EncodePasswords.ALL, multiAuxEncoder)
+            })
         }
     }
 
@@ -217,6 +226,15 @@ class TreeWareModuleSetTests {
         val errorList = listOf(ElementModelError("", "Error 1"), ElementModelError("/", "Error 2"))
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns SetResponse.ErrorList(ErrorCode.CLIENT_ERROR, errorList)
+
+        val setRequest = """
+                |{
+                |  "address_book__set_": "create",
+                |  "address_book": {
+                |    "name": "Super Heroes"
+                |  }
+                |}
+            """.trimMargin()
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
@@ -232,14 +250,6 @@ class TreeWareModuleSetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val setRequest = """
-                |{
-                |  "address_book__set_": "create",
-                |  "address_book": {
-                |    "name": "Super Heroes"
-                |  }
-                |}
-            """.trimMargin()
             val response = client.post("/tree-ware/api/set/address-book") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
@@ -261,8 +271,9 @@ class TreeWareModuleSetTests {
         }
 
         verifySequence {
-            // TODO(deepak-nulu): validate the model passed to the setter.
-            setter.invoke(ofType())
+            setter.invoke(withArg {
+                assertMatchesJsonString(it, setRequest, EncodePasswords.ALL, multiAuxEncoder)
+            })
         }
     }
 
@@ -273,6 +284,15 @@ class TreeWareModuleSetTests {
 
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns SetResponse.ErrorModel(ErrorCode.CLIENT_ERROR, errorModel)
+
+        val setRequest = """
+                |{
+                |  "address_book__set_": "create",
+                |  "address_book": {
+                |    "name": "Super Heroes"
+                |  }
+                |}
+            """.trimMargin()
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
@@ -288,14 +308,6 @@ class TreeWareModuleSetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val setRequest = """
-                |{
-                |  "address_book__set_": "create",
-                |  "address_book": {
-                |    "name": "Super Heroes"
-                |  }
-                |}
-            """.trimMargin()
             val response = client.post("/tree-ware/api/set/address-book") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
@@ -305,8 +317,9 @@ class TreeWareModuleSetTests {
         }
 
         verifySequence {
-            // TODO(deepak-nulu): validate the model passed to the setter.
-            setter.invoke(ofType())
+            setter.invoke(withArg {
+                assertMatchesJsonString(it, setRequest, EncodePasswords.ALL, multiAuxEncoder)
+            })
         }
     }
 }

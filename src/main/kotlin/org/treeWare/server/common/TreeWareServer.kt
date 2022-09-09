@@ -110,6 +110,7 @@ class TreeWareServer(
                 ErrorCode.UNAUTHORIZED,
                 listOf(ElementModelError("", "Partially unauthorized"))
             )
+
             NotPermitted -> SetResponse.ErrorList(
                 ErrorCode.UNAUTHORIZED,
                 listOf(ElementModelError("", "Fully unauthorized"))
@@ -126,6 +127,7 @@ class TreeWareServer(
         if (model == null || decodeErrors.isNotEmpty()) return GetResponse.ErrorList(
             ErrorCode.CLIENT_ERROR,
             decodeErrors.map { ElementModelError("", it) })
+        populateSubTreeGranularityGetRequest(model)
         val rbac = rbacGetter(metaModel)
         return when (val permitResponse = permitGet(model, rbac)) {
             is FullyPermitted -> getter(permitResponse.permitted)
@@ -134,6 +136,7 @@ class TreeWareServer(
                 ErrorCode.UNAUTHORIZED,
                 listOf(ElementModelError("", "Partially unauthorized"))
             )
+
             NotPermitted -> GetResponse.ErrorList(
                 ErrorCode.UNAUTHORIZED,
                 listOf(ElementModelError("", "Fully unauthorized"))

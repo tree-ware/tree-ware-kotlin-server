@@ -71,7 +71,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
             val expectedErrors = """
                 [
                   {
-                    "path": "/address_book/sub_tree_persons[cc477201-48ec-4367-83a4-7fdbd92f8a6f]/hero_details",
+                    "path": "/address_book/sub_tree_persons/cc477201-48ec-4367-83a4-7fdbd92f8a6f/hero_details",
                     "error": "set_ aux is not valid inside a sub-tree with sub_tree granularity"
                   }
                 ]
@@ -124,7 +124,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
             val expectedErrors = """
                 [
                   {
-                    "path": "/address_book/sub_tree_persons[cc477201-48ec-4367-83a4-7fdbd92f8a6f]",
+                    "path": "/address_book/sub_tree_persons/cc477201-48ec-4367-83a4-7fdbd92f8a6f",
                     "error": "A delete-request must only specify the root of a sub-tree with sub_tree granularity"
                   }
                 ]

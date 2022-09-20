@@ -26,7 +26,7 @@ sealed class EchoResponse(open val errorCode: ErrorCode) {
 }
 
 /** Return the RBAC model for the logged-in user. */
-typealias RbacGetter = (mainMeta: MainModel) -> MainModel
+typealias RbacGetter = (mainMeta: MainModel) -> MainModel?
 
 /** Set the model and returns errors if any. */
 typealias Setter = (mainModel: MutableMainModel) -> SetResponse
@@ -102,7 +102,10 @@ class TreeWareServer(
         if (validationErrors.isNotEmpty()) return SetResponse.ErrorList(ErrorCode.CLIENT_ERROR, validationErrors)
         val granularityErrors = populateSubTreeGranularityDeleteRequest(model)
         if (granularityErrors.isNotEmpty()) return SetResponse.ErrorList(ErrorCode.CLIENT_ERROR, granularityErrors)
-        val rbac = rbacGetter(metaModel)
+        val rbac = rbacGetter(metaModel) ?: return SetResponse.ErrorList(
+            ErrorCode.SERVER_ERROR,
+            listOf(ElementModelError("/", "Unable to authorize the request"))
+        )
         return when (val permitResponse = permitSet(model, rbac)) {
             is FullyPermitted -> setter(permitResponse.permitted)
             // TODO(#40): return errors that indicate which parts are not permitted
@@ -128,7 +131,10 @@ class TreeWareServer(
             ErrorCode.CLIENT_ERROR,
             decodeErrors.map { ElementModelError("", it) })
         populateSubTreeGranularityGetRequest(model)
-        val rbac = rbacGetter(metaModel)
+        val rbac = rbacGetter(metaModel) ?: return GetResponse.ErrorList(
+            ErrorCode.SERVER_ERROR,
+            listOf(ElementModelError("/", "Unable to authorize the request"))
+        )
         return when (val permitResponse = permitGet(model, rbac)) {
             is FullyPermitted -> getter(permitResponse.permitted)
             // TODO(#40): return errors that indicate which parts are not permitted

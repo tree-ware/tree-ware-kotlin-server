@@ -1,5 +1,6 @@
 package org.treeWare.server.common
 
+import io.ktor.server.auth.*
 import org.lighthousegames.logging.logging
 import org.treeWare.metaModel.aux.MetaModelAuxPlugin
 import org.treeWare.metaModel.getMainMetaName
@@ -26,7 +27,7 @@ sealed class EchoResponse(open val errorCode: ErrorCode) {
 }
 
 /** Return the RBAC model for the logged-in user. */
-typealias RbacGetter = (mainMeta: MainModel) -> MainModel?
+typealias RbacGetter = (principal: Principal?, mainMeta: MainModel) -> MainModel?
 
 /** Set the model and returns errors if any. */
 typealias Setter = (mainModel: MutableMainModel) -> SetResponse
@@ -89,7 +90,7 @@ class TreeWareServer(
         return EchoResponse.Model(model)
     }
 
-    fun set(request: Reader): SetResponse {
+    fun set(principal: Principal?, request: Reader): SetResponse {
         val (model, decodeErrors) = decodeJson(
             request,
             metaModel,
@@ -102,7 +103,7 @@ class TreeWareServer(
         if (validationErrors.isNotEmpty()) return SetResponse.ErrorList(ErrorCode.CLIENT_ERROR, validationErrors)
         val granularityErrors = populateSubTreeGranularityDeleteRequest(model)
         if (granularityErrors.isNotEmpty()) return SetResponse.ErrorList(ErrorCode.CLIENT_ERROR, granularityErrors)
-        val rbac = rbacGetter(metaModel) ?: return SetResponse.ErrorList(
+        val rbac = rbacGetter(principal, metaModel) ?: return SetResponse.ErrorList(
             ErrorCode.SERVER_ERROR,
             listOf(ElementModelError("/", "Unable to authorize the request"))
         )
@@ -121,7 +122,7 @@ class TreeWareServer(
         }
     }
 
-    fun get(request: Reader): GetResponse {
+    fun get(principal: Principal?, request: Reader): GetResponse {
         val (model, decodeErrors) = decodeJson(
             request,
             metaModel,
@@ -131,7 +132,7 @@ class TreeWareServer(
             ErrorCode.CLIENT_ERROR,
             decodeErrors.map { ElementModelError("", it) })
         populateSubTreeGranularityGetRequest(model)
-        val rbac = rbacGetter(metaModel) ?: return GetResponse.ErrorList(
+        val rbac = rbacGetter(principal, metaModel) ?: return GetResponse.ErrorList(
             ErrorCode.SERVER_ERROR,
             listOf(ElementModelError("/", "Unable to authorize the request"))
         )

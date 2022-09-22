@@ -60,8 +60,9 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer, vararg authentica
 
                 post("set/$mainMetaName") {
                     withContext(Dispatchers.IO) {
+                        val principal = call.principal<Principal>()
                         val reader = InputStreamReader(call.receiveStream())
-                        val setResponse = treeWareServer.set(reader)
+                        val setResponse = treeWareServer.set(principal, reader)
                         val httpStatusCode = setResponse.errorCode.toHttpStatusCode()
                         when (setResponse) {
                             is SetResponse.Success -> call.respond(httpStatusCode, "")
@@ -90,8 +91,9 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer, vararg authentica
 
                 post("get/$mainMetaName") {
                     withContext(Dispatchers.IO) {
+                        val principal = call.principal<Principal>()
                         val reader = InputStreamReader(call.receiveStream())
-                        val getResponse = treeWareServer.get(reader)
+                        val getResponse = treeWareServer.get(principal, reader)
                         val httpStatusCode = getResponse.errorCode.toHttpStatusCode()
                         when (getResponse) {
                             is GetResponse.Model -> call.respondTextWriter(

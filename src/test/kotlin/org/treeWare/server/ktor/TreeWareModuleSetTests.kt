@@ -47,7 +47,7 @@ class TreeWareModuleSetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/set/address-book") {
+            val response = client.post("/tree-ware/api/set") {
                 addValidApiKeyHeader()
                 setBody("")
             }
@@ -95,7 +95,7 @@ class TreeWareModuleSetTests {
                 |  }
                 |}
             """.trimMargin()
-            val response = client.post("/tree-ware/api/set/address-book") {
+            val response = client.post("/tree-ware/api/set") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
             }
@@ -157,7 +157,7 @@ class TreeWareModuleSetTests {
                 |  }
                 |}
             """.trimMargin()
-            val response = client.post("/tree-ware/api/set/address-book") {
+            val response = client.post("/tree-ware/api/set") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
             }
@@ -206,7 +206,7 @@ class TreeWareModuleSetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/set/address-book") {
+            val response = client.post("/tree-ware/api/set") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
             }
@@ -250,7 +250,7 @@ class TreeWareModuleSetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/set/address-book") {
+            val response = client.post("/tree-ware/api/set") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
             }
@@ -308,7 +308,7 @@ class TreeWareModuleSetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/set/address-book") {
+            val response = client.post("/tree-ware/api/set") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
             }

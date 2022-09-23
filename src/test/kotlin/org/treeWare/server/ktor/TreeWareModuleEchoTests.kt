@@ -37,7 +37,7 @@ class TreeWareModuleEchoTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/echo/address-book") {
+            val response = client.post("/tree-ware/api/echo") {
                 addValidApiKeyHeader()
                 setBody("")
             }
@@ -69,7 +69,7 @@ class TreeWareModuleEchoTests {
             val modelJsonReader = getFileReader("model/address_book_1.json")
             assertNotNull(modelJsonReader)
             val modelJson = modelJsonReader.readText()
-            val response = client.post("/tree-ware/api/echo/address-book") {
+            val response = client.post("/tree-ware/api/echo") {
                 addValidApiKeyHeader()
                 setBody(modelJson)
             }

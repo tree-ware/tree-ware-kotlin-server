@@ -71,7 +71,7 @@ class TreeWareModuleSubTreeGranularityGetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/get/address-book") {
+            val response = client.post("/tree-ware/api/get") {
                 addValidApiKeyHeader()
                 setBody(getRequest)
             }
@@ -117,7 +117,7 @@ class TreeWareModuleSubTreeGranularityGetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/get/address-book") {
+            val response = client.post("/tree-ware/api/get") {
                 addValidApiKeyHeader()
                 setBody(getRequest)
             }

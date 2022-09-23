@@ -45,8 +45,6 @@ class TreeWareServer(
     private val setter: Setter,
     private val getter: Getter
 ) {
-    internal val mainMetaName: String
-
     private val logger = logging()
     private val metaModel: MainModel
     private val hasher = null // TODO(deepak-nulu): create a hasher based on server configuration.
@@ -69,7 +67,7 @@ class TreeWareServer(
                 .toTypedArray())
 
 
-        mainMetaName = getMainMetaName(metaModel)
+        val mainMetaName = getMainMetaName(metaModel)
         logger.info { "Meta-model name: $mainMetaName" }
         logger.info { "Calling initializer" }
         initializer(metaModel)

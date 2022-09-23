@@ -21,12 +21,10 @@ import java.io.InputStreamReader
 import java.io.Writer
 
 fun Application.treeWareModule(treeWareServer: TreeWareServer, vararg authenticationProviderNames: String?) {
-    val mainMetaName = snakeCaseToKebabCase(treeWareServer.mainMetaName)
-
     routing {
         authenticate(*authenticationProviderNames) {
             route("/tree-ware/api") {
-                post("echo/$mainMetaName") {
+                post("echo") {
                     // TODO(deepak-nulu): load-test to ensure InputStream does not limit concurrency
                     withContext(Dispatchers.IO) {
                         val reader = InputStreamReader(call.receiveStream())
@@ -58,7 +56,7 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer, vararg authentica
                     }
                 }
 
-                post("set/$mainMetaName") {
+                post("set") {
                     withContext(Dispatchers.IO) {
                         val principal = call.principal<Principal>()
                         val reader = InputStreamReader(call.receiveStream())
@@ -89,7 +87,7 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer, vararg authentica
                     }
                 }
 
-                post("get/$mainMetaName") {
+                post("get") {
                     withContext(Dispatchers.IO) {
                         val principal = call.principal<Principal>()
                         val reader = InputStreamReader(call.receiveStream())

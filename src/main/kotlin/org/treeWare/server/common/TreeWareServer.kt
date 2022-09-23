@@ -107,14 +107,13 @@ class TreeWareServer(
             ErrorCode.SERVER_ERROR,
             listOf(ElementModelError("/", "Unable to authorize the request"))
         )
-        return when (val permitResponse = permitSet(model, rbac)) {
-            is FullyPermitted -> setter(permitResponse.permitted)
+        return when (val permittedSetRequest = permitSet(model, rbac)) {
+            is FullyPermitted -> setter(permittedSetRequest.permitted)
             // TODO(#40): return errors that indicate which parts are not permitted
             is PartiallyPermitted -> SetResponse.ErrorList(
                 ErrorCode.UNAUTHORIZED,
                 listOf(ElementModelError("", "Partially unauthorized"))
             )
-
             NotPermitted -> SetResponse.ErrorList(
                 ErrorCode.UNAUTHORIZED,
                 listOf(ElementModelError("", "Fully unauthorized"))
@@ -136,18 +135,27 @@ class TreeWareServer(
             ErrorCode.SERVER_ERROR,
             listOf(ElementModelError("/", "Unable to authorize the request"))
         )
-        return when (val permitResponse = permitGet(model, rbac)) {
-            is FullyPermitted -> getter(permitResponse.permitted)
+        return when (val permittedGetRequest = permitGet(model, rbac)) {
+            is FullyPermitted -> permitGetResponse(getter(permittedGetRequest.permitted), rbac)
             // TODO(#40): return errors that indicate which parts are not permitted
             is PartiallyPermitted -> GetResponse.ErrorList(
                 ErrorCode.UNAUTHORIZED,
                 listOf(ElementModelError("", "Partially unauthorized"))
             )
-
             NotPermitted -> GetResponse.ErrorList(
                 ErrorCode.UNAUTHORIZED,
                 listOf(ElementModelError("", "Fully unauthorized"))
             )
         }
+    }
+
+    private fun permitGetResponse(getResponse: GetResponse, rbac: MainModel): GetResponse = when (getResponse) {
+        is GetResponse.Model -> when (val permittedGetResponse = permitGet(getResponse.model, rbac)) {
+            is FullyPermitted -> GetResponse.Model(permittedGetResponse.permitted)
+            is PartiallyPermitted -> GetResponse.Model(permittedGetResponse.permitted)
+            NotPermitted -> GetResponse.Model(MutableMainModel(metaModel).also { it.getOrNewRoot() })
+        }
+        is GetResponse.ErrorList -> getResponse
+        is GetResponse.ErrorModel -> getResponse
     }
 }

@@ -91,7 +91,7 @@ class TreeWareModuleGetTests {
                 |[
                 |  {
                 |    "path": "",
-                |    "error": "Fully unauthorized"
+                |    "error": "Unauthorized for all parts of the request"
                 |  }
                 |]
             """.trimMargin()
@@ -132,7 +132,7 @@ class TreeWareModuleGetTests {
                 |[
                 |  {
                 |    "path": "",
-                |    "error": "Partially unauthorized"
+                |    "error": "Unauthorized for some parts of the request"
                 |  }
                 |]
             """.trimMargin()

@@ -110,11 +110,11 @@ class TreeWareServer(
             // TODO(#40): return errors that indicate which parts are not permitted
             is PartiallyPermitted -> SetResponse.ErrorList(
                 ErrorCode.UNAUTHORIZED,
-                listOf(ElementModelError("", "Partially unauthorized"))
+                listOf(ElementModelError("", "Unauthorized for some parts of the request"))
             )
             NotPermitted -> SetResponse.ErrorList(
                 ErrorCode.UNAUTHORIZED,
-                listOf(ElementModelError("", "Fully unauthorized"))
+                listOf(ElementModelError("", "Unauthorized for all parts of the request"))
             )
         }
     }
@@ -138,11 +138,11 @@ class TreeWareServer(
             // TODO(#40): return errors that indicate which parts are not permitted
             is PartiallyPermitted -> GetResponse.ErrorList(
                 ErrorCode.UNAUTHORIZED,
-                listOf(ElementModelError("", "Partially unauthorized"))
+                listOf(ElementModelError("", "Unauthorized for some parts of the request"))
             )
             NotPermitted -> GetResponse.ErrorList(
                 ErrorCode.UNAUTHORIZED,
-                listOf(ElementModelError("", "Fully unauthorized"))
+                listOf(ElementModelError("", "Unauthorized for all parts of the request"))
             )
         }
     }

@@ -15,7 +15,6 @@ import org.treeWare.model.operator.ElementModelError
 import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
-import org.treeWare.server.common.EchoResponse
 import org.treeWare.server.common.TreeWareServer
 import java.io.InputStreamReader
 import java.io.Writer
@@ -24,38 +23,6 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer, vararg authentica
     routing {
         authenticate(*authenticationProviderNames) {
             route("/tree-ware/api") {
-                post("echo") {
-                    // TODO(deepak-nulu): load-test to ensure InputStream does not limit concurrency
-                    withContext(Dispatchers.IO) {
-                        val reader = InputStreamReader(call.receiveStream())
-                        val echoResponse = treeWareServer.echo(reader)
-                        val httpStatusCode = echoResponse.errorCode.toHttpStatusCode()
-                        when (echoResponse) {
-                            is EchoResponse.Model -> call.respondTextWriter(
-                                ContentType.Application.Json,
-                                httpStatusCode
-                            ) {
-                                // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-                                // TODO(deepak-nulu): get encodePasswords value from URL query-param.
-                                // TODO(deepak-nulu): report decodeErrors once they are in aux form.
-                                encodeJson(
-                                    echoResponse.model,
-                                    this,
-                                    treeWareServer.modelMultiAuxEncoder,
-                                    EncodePasswords.ALL,
-                                    true
-                                )
-                            }
-                            is EchoResponse.ErrorList -> call.respondTextWriter(
-                                ContentType.Text.Plain,
-                                httpStatusCode
-                            ) {
-                                writeStringList(this, echoResponse.errorList)
-                            }
-                        }
-                    }
-                }
-
                 post("set") {
                     withContext(Dispatchers.IO) {
                         val principal = call.principal<Principal>()
@@ -136,8 +103,6 @@ fun Application.treeWareModule(treeWareServer: TreeWareServer, vararg authentica
         }
     }
 }
-
-private fun snakeCaseToKebabCase(snake: String): String = snake.split("_").joinToString("-")
 
 private fun ErrorCode.toHttpStatusCode(): HttpStatusCode = when (this) {
     ErrorCode.OK -> HttpStatusCode.OK

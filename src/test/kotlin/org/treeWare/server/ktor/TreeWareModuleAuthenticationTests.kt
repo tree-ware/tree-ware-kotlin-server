@@ -31,7 +31,7 @@ class TreeWareModuleAuthenticationTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/echo") {
+            val response = client.post("/tree-ware/api/get") {
                 addApiKeyHeader(TEST_API_KEY_INVALID)
                 setBody("")
             }

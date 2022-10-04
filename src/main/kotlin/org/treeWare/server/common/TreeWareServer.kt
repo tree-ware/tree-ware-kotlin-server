@@ -21,11 +21,6 @@ import java.io.Reader
 /** Perform initialization before the server starts serving. */
 typealias Initializer = (mainMeta: MainModel) -> Unit
 
-sealed class EchoResponse(open val errorCode: ErrorCode) {
-    data class Model(val model: MainModel) : EchoResponse(ErrorCode.OK)
-    data class ErrorList(override val errorCode: ErrorCode, val errorList: List<String>) : EchoResponse(errorCode)
-}
-
 /** Return the RBAC model for the logged-in user. */
 typealias RbacGetter = (principal: Principal?, mainMeta: MainModel) -> MainModel?
 
@@ -72,20 +67,6 @@ class TreeWareServer(
         logger.info { "Calling initializer" }
         initializer(metaModel)
         logger.info { "tree-ware server started" }
-    }
-
-    fun echo(request: Reader): EchoResponse {
-        // TODO(deepak-nulu): get expectedModelType value from URL query-param.
-        val (model, decodeErrors) = decodeJson(
-            request,
-            metaModel,
-            multiAuxDecodingStateMachineFactory = modelMultiAuxDecodingStateMachineFactory
-        )
-        if (model == null || decodeErrors.isNotEmpty()) return EchoResponse.ErrorList(
-            ErrorCode.CLIENT_ERROR,
-            decodeErrors
-        )
-        return EchoResponse.Model(model)
     }
 
     fun set(principal: Principal?, request: Reader): SetResponse {

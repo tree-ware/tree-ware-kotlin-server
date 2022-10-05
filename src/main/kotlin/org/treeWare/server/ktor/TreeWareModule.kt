@@ -129,7 +129,7 @@ private fun validateModelVersion(call: ApplicationCall, mainMeta: MainModel): St
     val metaModelVersion = getResolvedVersionAux(mainMeta)
     return when (metaModelVersion.validateModelSemanticVersion(modelSemanticVersion)) {
         SemanticVersionError.INVALID -> "Version `$version` in URL is not a valid semantic version"
-        SemanticVersionError.HIGHER_THAN_SUPPORTED -> "Version `$version` in URL is higher than supported version `$VERSION_PREFIX${metaModelVersion.supportedVersion}`"
+        SemanticVersionError.HIGHER_THAN_SUPPORTED -> "Version `$version` in URL is higher than supported version `$VERSION_PREFIX${metaModelVersion.semantic}`"
         null -> null
     }
 }

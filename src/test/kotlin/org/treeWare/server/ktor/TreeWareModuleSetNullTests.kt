@@ -49,7 +49,7 @@ class TreeWareModuleSetNullTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/set") {
+            val response = client.post("/tree-ware/api/set/v1") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
             }
@@ -96,7 +96,7 @@ class TreeWareModuleSetNullTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/set") {
+            val response = client.post("/tree-ware/api/set/v1") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
             }
@@ -145,7 +145,7 @@ class TreeWareModuleSetNullTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/set") {
+            val response = client.post("/tree-ware/api/set/v1") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
             }

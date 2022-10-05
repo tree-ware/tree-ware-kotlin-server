@@ -64,7 +64,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
                   }
                 }
             """.trimIndent()
-            val response = client.post("/tree-ware/api/set") {
+            val response = client.post("/tree-ware/api/set/v1") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
             }
@@ -117,7 +117,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
                   }
                 }
             """.trimIndent()
-            val response = client.post("/tree-ware/api/set") {
+            val response = client.post("/tree-ware/api/set/v1") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
             }
@@ -169,7 +169,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
                   }
                 }
             """.trimIndent()
-            val response = client.post("/tree-ware/api/set") {
+            val response = client.post("/tree-ware/api/set/v1") {
                 addValidApiKeyHeader()
                 setBody(setRequest)
             }

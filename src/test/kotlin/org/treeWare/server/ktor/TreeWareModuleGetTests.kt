@@ -42,7 +42,7 @@ class TreeWareModuleGetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/get") {
+            val response = client.post("/tree-ware/api/get/v1") {
                 addValidApiKeyHeader()
                 setBody("")
             }
@@ -83,7 +83,7 @@ class TreeWareModuleGetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/get") {
+            val response = client.post("/tree-ware/api/get/v1") {
                 addValidApiKeyHeader()
                 setBody(getRequest)
             }
@@ -124,7 +124,7 @@ class TreeWareModuleGetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/get") {
+            val response = client.post("/tree-ware/api/get/v1") {
                 addValidApiKeyHeader()
                 setBody(getRequest)
             }
@@ -167,7 +167,7 @@ class TreeWareModuleGetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/get") {
+            val response = client.post("/tree-ware/api/get/v1") {
                 addValidApiKeyHeader()
                 setBody(getRequest)
             }
@@ -222,7 +222,7 @@ class TreeWareModuleGetTests {
                 installTestAuthentication()
                 treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
             }
-            val response = client.post("/tree-ware/api/get") {
+            val response = client.post("/tree-ware/api/get/v1") {
                 addValidApiKeyHeader()
                 setBody(getRequest)
             }

@@ -40,8 +40,9 @@ class TreeWareServer(
     private val setter: Setter,
     private val getter: Getter
 ) {
+    val metaModel: MainModel
+
     private val logger = logging()
-    private val metaModel: MainModel
     private val hasher = null // TODO(deepak-nulu): create a hasher based on server configuration.
     private val cipher = null // TODO(deepak-nulu): get a secret key from server configuration and create a cipher.
 

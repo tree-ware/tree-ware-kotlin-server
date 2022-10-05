@@ -8,6 +8,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.treeWare.metaModel.aux.SemanticVersionError
+import org.treeWare.metaModel.aux.getResolvedVersionAux
+import org.treeWare.model.core.MainModel
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.JsonWireFormatEncoder
 import org.treeWare.model.encoder.encodeJson
@@ -19,88 +22,122 @@ import org.treeWare.server.common.TreeWareServer
 import java.io.InputStreamReader
 import java.io.Writer
 
+private const val VERSION_PATH_PARAMETER_NAME = "version"
+private const val VERSION_PREFIX = "v"
+private const val VERSION_PREFIX_LENGTH = VERSION_PREFIX.length
+
 fun Application.treeWareModule(treeWareServer: TreeWareServer, vararg authenticationProviderNames: String?) {
     routing {
         authenticate(*authenticationProviderNames) {
             route("/tree-ware/api") {
-                post("set") {
-                    withContext(Dispatchers.IO) {
-                        val principal = call.principal<Principal>()
-                        val reader = InputStreamReader(call.receiveStream())
-                        val setResponse = treeWareServer.set(principal, reader)
-                        val httpStatusCode = setResponse.errorCode.toHttpStatusCode()
-                        when (setResponse) {
-                            is SetResponse.Success -> call.respond(httpStatusCode, "")
-                            is SetResponse.ErrorList -> call.respondTextWriter(
-                                ContentType.Application.Json,
-                                httpStatusCode
-                            ) {
-                                writeErrorList(this, setResponse.errorList, true)
-                            }
-                            is SetResponse.ErrorModel -> call.respondTextWriter(
-                                ContentType.Application.Json,
-                                httpStatusCode
-                            ) {
-                                // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-                                encodeJson(
-                                    setResponse.errorModel,
-                                    this,
-                                    treeWareServer.modelMultiAuxEncoder,
-                                    EncodePasswords.ALL,
-                                    true
-                                )
-                            }
-                        }
-                    }
-                }
+                setModelRoute(treeWareServer)
+                getModelRoute(treeWareServer)
+            }
+        }
+    }
+}
 
-                post("get") {
-                    withContext(Dispatchers.IO) {
-                        val principal = call.principal<Principal>()
-                        val reader = InputStreamReader(call.receiveStream())
-                        val getResponse = treeWareServer.get(principal, reader)
-                        val httpStatusCode = getResponse.errorCode.toHttpStatusCode()
-                        when (getResponse) {
-                            is GetResponse.Model -> call.respondTextWriter(
-                                ContentType.Application.Json,
-                                httpStatusCode
-                            ) {
-                                // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-                                // TODO(deepak-nulu): get encodePasswords value from URL query-param.
-                                // TODO(deepak-nulu): report decodeErrors once they are in aux form.
-                                encodeJson(
-                                    getResponse.model,
-                                    this,
-                                    treeWareServer.modelMultiAuxEncoder,
-                                    EncodePasswords.ALL,
-                                    true
-                                )
-                            }
-                            is GetResponse.ErrorList -> call.respondTextWriter(
-                                ContentType.Application.Json,
-                                httpStatusCode
-                            ) {
-                                // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-                                writeErrorList(this, getResponse.errorList, true)
-                            }
-                            is GetResponse.ErrorModel -> call.respondTextWriter(
-                                ContentType.Application.Json,
-                                httpStatusCode
-                            ) {
-                                // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-                                encodeJson(
-                                    getResponse.errorModel,
-                                    this,
-                                    treeWareServer.modelMultiAuxEncoder,
-                                    EncodePasswords.ALL,
-                                    true
-                                )
-                            }
-                        }
-                    }
+private fun Route.setModelRoute(treeWareServer: TreeWareServer) {
+    post("set/{$VERSION_PATH_PARAMETER_NAME}") {
+        val versionError = validateModelVersion(call, treeWareServer.metaModel)
+        if (versionError != null) respondVersionError(call, versionError, true)
+        else withContext(Dispatchers.IO) {
+            val principal = call.principal<Principal>()
+            val reader = InputStreamReader(call.receiveStream())
+            val setResponse = treeWareServer.set(principal, reader)
+            val httpStatusCode = setResponse.errorCode.toHttpStatusCode()
+            when (setResponse) {
+                is SetResponse.Success -> call.respond(httpStatusCode, "")
+                is SetResponse.ErrorList -> call.respondTextWriter(
+                    ContentType.Application.Json,
+                    httpStatusCode
+                ) {
+                    writeErrorList(this, setResponse.errorList, true)
+                }
+                is SetResponse.ErrorModel -> call.respondTextWriter(
+                    ContentType.Application.Json,
+                    httpStatusCode
+                ) {
+                    // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+                    encodeJson(
+                        setResponse.errorModel,
+                        this,
+                        treeWareServer.modelMultiAuxEncoder,
+                        EncodePasswords.ALL,
+                        true
+                    )
                 }
             }
         }
+    }
+}
+
+private fun Route.getModelRoute(treeWareServer: TreeWareServer) {
+    post("get/{$VERSION_PATH_PARAMETER_NAME}") {
+        val versionError = validateModelVersion(call, treeWareServer.metaModel)
+        if (versionError != null) respondVersionError(call, versionError, true)
+        else withContext(Dispatchers.IO) {
+            val principal = call.principal<Principal>()
+            val reader = InputStreamReader(call.receiveStream())
+            val getResponse = treeWareServer.get(principal, reader)
+            val httpStatusCode = getResponse.errorCode.toHttpStatusCode()
+            when (getResponse) {
+                is GetResponse.Model -> call.respondTextWriter(
+                    ContentType.Application.Json,
+                    httpStatusCode
+                ) {
+                    // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+                    // TODO(deepak-nulu): get encodePasswords value from URL query-param.
+                    // TODO(deepak-nulu): report decodeErrors once they are in aux form.
+                    encodeJson(
+                        getResponse.model,
+                        this,
+                        treeWareServer.modelMultiAuxEncoder,
+                        EncodePasswords.ALL,
+                        true
+                    )
+                }
+                is GetResponse.ErrorList -> call.respondTextWriter(
+                    ContentType.Application.Json,
+                    httpStatusCode
+                ) {
+                    // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+                    writeErrorList(this, getResponse.errorList, true)
+                }
+                is GetResponse.ErrorModel -> call.respondTextWriter(
+                    ContentType.Application.Json,
+                    httpStatusCode
+                ) {
+                    // TODO(deepak-nulu): get prettyPrint value from URL query-param.
+                    encodeJson(
+                        getResponse.errorModel,
+                        this,
+                        treeWareServer.modelMultiAuxEncoder,
+                        EncodePasswords.ALL,
+                        true
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun validateModelVersion(call: ApplicationCall, mainMeta: MainModel): String? {
+    val version = requireNotNull(call.parameters[VERSION_PATH_PARAMETER_NAME])
+    if (!version.startsWith(VERSION_PREFIX)) return "Version `$version` in URL does not start with prefix `$VERSION_PREFIX`"
+    val modelSemanticVersion = version.drop(VERSION_PREFIX_LENGTH)
+    val metaModelVersion = getResolvedVersionAux(mainMeta)
+    return when (metaModelVersion.validateModelSemanticVersion(modelSemanticVersion)) {
+        SemanticVersionError.INVALID -> "Version `$version` in URL is not a valid semantic version"
+        SemanticVersionError.HIGHER_THAN_SUPPORTED -> "Version `$version` in URL is higher than supported version `$VERSION_PREFIX${metaModelVersion.supportedVersion}`"
+        null -> null
+    }
+}
+
+private suspend fun respondVersionError(call: ApplicationCall, versionError: String, prettyPrint: Boolean) {
+    val errors = listOf(ElementModelError("", versionError))
+    call.respondTextWriter(ContentType.Application.Json, HttpStatusCode.BadRequest) {
+        writeErrorList(this, errors, prettyPrint)
     }
 }
 
@@ -110,13 +147,6 @@ private fun ErrorCode.toHttpStatusCode(): HttpStatusCode = when (this) {
     ErrorCode.UNAUTHORIZED -> HttpStatusCode.Forbidden
     ErrorCode.CLIENT_ERROR -> HttpStatusCode.BadRequest
     ErrorCode.SERVER_ERROR -> HttpStatusCode.InternalServerError
-}
-
-private fun writeStringList(writer: Writer, list: List<String>) {
-    list.forEachIndexed { index, error ->
-        if (index != 0) writer.appendLine()
-        writer.append(error)
-    }
 }
 
 private fun writeErrorList(writer: Writer, errorList: List<ElementModelError>, prettyPrint: Boolean) {

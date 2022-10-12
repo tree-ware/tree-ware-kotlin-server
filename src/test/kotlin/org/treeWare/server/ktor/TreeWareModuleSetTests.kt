@@ -18,10 +18,10 @@ import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.model.operator.set.aux.SET_AUX_NAME
 import org.treeWare.model.operator.set.aux.SetAuxEncoder
 import org.treeWare.model.operator.set.aux.SetAuxPlugin
-import org.treeWare.model.readFile
 import org.treeWare.server.*
 import org.treeWare.server.common.Setter
 import org.treeWare.server.common.TreeWareServer
+import org.treeWare.util.readFile
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

@@ -14,10 +14,10 @@ import org.treeWare.model.operator.ElementModelError
 import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
-import org.treeWare.model.readFile
 import org.treeWare.server.*
 import org.treeWare.server.common.Getter
 import org.treeWare.server.common.TreeWareServer
+import org.treeWare.util.readFile
 import java.io.StringWriter
 import kotlin.test.Test
 import kotlin.test.assertEquals

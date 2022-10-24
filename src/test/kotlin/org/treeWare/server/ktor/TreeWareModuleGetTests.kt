@@ -5,6 +5,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.mockk.*
+import okio.Buffer
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.addressBookMetaModel
 import org.treeWare.model.encoder.EncodePasswords
@@ -18,7 +19,6 @@ import org.treeWare.server.*
 import org.treeWare.server.common.Getter
 import org.treeWare.server.common.TreeWareServer
 import org.treeWare.util.readFile
-import java.io.StringWriter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -190,9 +190,9 @@ class TreeWareModuleGetTests {
         verifySequence {
             getter.invoke(match {
                 // NOTE: mockk appears to be catching exceptions, so assert functions cannot be used here.
-                val actualRequest = StringWriter()
+                val actualRequest = Buffer()
                 encodeJson(it, actualRequest, encodePasswords = EncodePasswords.ALL, prettyPrint = true)
-                val isMatching = getRequest == actualRequest.toString()
+                val isMatching = getRequest == actualRequest.readUtf8()
                 if (!isMatching) println("actualRequest: $actualRequest")
                 isMatching
             })
@@ -233,9 +233,9 @@ class TreeWareModuleGetTests {
         verifySequence {
             getter.invoke(match {
                 // NOTE: mockk appears to be catching exceptions, so assert functions cannot be used here.
-                val actualRequest = StringWriter()
+                val actualRequest = Buffer()
                 encodeJson(it, actualRequest, encodePasswords = EncodePasswords.ALL, prettyPrint = true)
-                val isMatching = getRequest == actualRequest.toString()
+                val isMatching = getRequest == actualRequest.readUtf8()
                 if (!isMatching) println("actualRequest: $actualRequest")
                 isMatching
             })

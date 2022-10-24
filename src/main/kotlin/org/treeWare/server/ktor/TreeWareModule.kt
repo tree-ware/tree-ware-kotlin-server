@@ -8,6 +8,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okio.Sink
+import okio.sink
 import org.treeWare.metaModel.aux.SemanticVersionError
 import org.treeWare.metaModel.aux.getResolvedVersionAux
 import org.treeWare.model.core.MainModel
@@ -19,8 +21,8 @@ import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.server.common.TreeWareServer
+import org.treeWare.util.buffered
 import java.io.InputStreamReader
-import java.io.Writer
 
 private const val VERSION_PATH_PARAMETER_NAME = "version"
 private const val VERSION_PREFIX = "v"
@@ -48,20 +50,20 @@ private fun Route.setModelRoute(treeWareServer: TreeWareServer) {
             val httpStatusCode = setResponse.errorCode.toHttpStatusCode()
             when (setResponse) {
                 is SetResponse.Success -> call.respond(httpStatusCode, "")
-                is SetResponse.ErrorList -> call.respondTextWriter(
+                is SetResponse.ErrorList -> call.respondOutputStream(
                     ContentType.Application.Json,
                     httpStatusCode
                 ) {
-                    writeErrorList(this, setResponse.errorList, true)
+                    writeErrorList(this.sink(), setResponse.errorList, true)
                 }
-                is SetResponse.ErrorModel -> call.respondTextWriter(
+                is SetResponse.ErrorModel -> call.respondOutputStream(
                     ContentType.Application.Json,
                     httpStatusCode
                 ) {
                     // TODO(deepak-nulu): get prettyPrint value from URL query-param.
                     encodeJson(
                         setResponse.errorModel,
-                        this,
+                        this.sink(),
                         treeWareServer.modelMultiAuxEncoder,
                         EncodePasswords.ALL,
                         true
@@ -82,7 +84,7 @@ private fun Route.getModelRoute(treeWareServer: TreeWareServer) {
             val getResponse = treeWareServer.get(principal, reader)
             val httpStatusCode = getResponse.errorCode.toHttpStatusCode()
             when (getResponse) {
-                is GetResponse.Model -> call.respondTextWriter(
+                is GetResponse.Model -> call.respondOutputStream(
                     ContentType.Application.Json,
                     httpStatusCode
                 ) {
@@ -91,27 +93,27 @@ private fun Route.getModelRoute(treeWareServer: TreeWareServer) {
                     // TODO(deepak-nulu): report decodeErrors once they are in aux form.
                     encodeJson(
                         getResponse.model,
-                        this,
+                        this.sink(),
                         treeWareServer.modelMultiAuxEncoder,
                         EncodePasswords.ALL,
                         true
                     )
                 }
-                is GetResponse.ErrorList -> call.respondTextWriter(
+                is GetResponse.ErrorList -> call.respondOutputStream(
                     ContentType.Application.Json,
                     httpStatusCode
                 ) {
                     // TODO(deepak-nulu): get prettyPrint value from URL query-param.
-                    writeErrorList(this, getResponse.errorList, true)
+                    writeErrorList(this.sink(), getResponse.errorList, true)
                 }
-                is GetResponse.ErrorModel -> call.respondTextWriter(
+                is GetResponse.ErrorModel -> call.respondOutputStream(
                     ContentType.Application.Json,
                     httpStatusCode
                 ) {
                     // TODO(deepak-nulu): get prettyPrint value from URL query-param.
                     encodeJson(
                         getResponse.errorModel,
-                        this,
+                        this.sink(),
                         treeWareServer.modelMultiAuxEncoder,
                         EncodePasswords.ALL,
                         true
@@ -136,8 +138,8 @@ private fun validateModelVersion(call: ApplicationCall, mainMeta: MainModel): St
 
 private suspend fun respondVersionError(call: ApplicationCall, versionError: String, prettyPrint: Boolean) {
     val errors = listOf(ElementModelError("", versionError))
-    call.respondTextWriter(ContentType.Application.Json, HttpStatusCode.BadRequest) {
-        writeErrorList(this, errors, prettyPrint)
+    call.respondOutputStream(ContentType.Application.Json, HttpStatusCode.BadRequest) {
+        writeErrorList(this.sink(), errors, prettyPrint)
     }
 }
 
@@ -149,14 +151,16 @@ private fun ErrorCode.toHttpStatusCode(): HttpStatusCode = when (this) {
     ErrorCode.SERVER_ERROR -> HttpStatusCode.InternalServerError
 }
 
-private fun writeErrorList(writer: Writer, errorList: List<ElementModelError>, prettyPrint: Boolean) {
-    val encoder = JsonWireFormatEncoder(writer, prettyPrint)
-    encoder.encodeListStart(null)
-    errorList.forEach { error ->
-        encoder.encodeObjectStart(null)
-        encoder.encodeStringField("path", error.path)
-        encoder.encodeStringField("error", error.error)
-        encoder.encodeObjectEnd()
+private fun writeErrorList(sink: Sink, errorList: List<ElementModelError>, prettyPrint: Boolean) {
+    sink.buffered().use { bufferedSink ->
+        val encoder = JsonWireFormatEncoder(bufferedSink, prettyPrint)
+        encoder.encodeListStart(null)
+        errorList.forEach { error ->
+            encoder.encodeObjectStart(null)
+            encoder.encodeStringField("path", error.path)
+            encoder.encodeStringField("error", error.error)
+            encoder.encodeObjectEnd()
+        }
+        encoder.encodeListEnd()
     }
-    encoder.encodeListEnd()
 }

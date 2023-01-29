@@ -55,7 +55,7 @@ class TreeWareModuleSetTests {
                 |[
                 |  {
                 |    "path": "",
-                |    "error": "Invalid token=EOF at (line no=1, column no=0, offset=-1). Expected tokens are: [CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]"
+                |    "error": "Empty JSON"
                 |  }
                 |]
             """.trimMargin()

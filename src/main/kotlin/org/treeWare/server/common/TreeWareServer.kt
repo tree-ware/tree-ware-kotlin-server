@@ -1,6 +1,7 @@
 package org.treeWare.server.common
 
 import io.ktor.server.auth.*
+import okio.BufferedSource
 import org.lighthousegames.logging.logging
 import org.treeWare.metaModel.aux.MetaModelAuxPlugin
 import org.treeWare.metaModel.getMainMetaName
@@ -16,7 +17,6 @@ import org.treeWare.model.operator.rbac.FullyPermitted
 import org.treeWare.model.operator.rbac.NotPermitted
 import org.treeWare.model.operator.rbac.PartiallyPermitted
 import org.treeWare.model.operator.set.SetResponse
-import java.io.Reader
 
 /** Perform initialization before the server starts serving. */
 typealias Initializer = (mainMeta: MainModel) -> Unit
@@ -70,7 +70,7 @@ class TreeWareServer(
         logger.info { "tree-ware server started" }
     }
 
-    fun set(principal: Principal?, request: Reader): SetResponse {
+    fun set(principal: Principal?, request: BufferedSource): SetResponse {
         val (model, decodeErrors) = decodeJson(
             request,
             metaModel,
@@ -101,7 +101,7 @@ class TreeWareServer(
         }
     }
 
-    fun get(principal: Principal?, request: Reader): GetResponse {
+    fun get(principal: Principal?, request: BufferedSource): GetResponse {
         val (model, decodeErrors) = decodeJson(
             request,
             metaModel,

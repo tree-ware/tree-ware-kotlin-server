@@ -9,7 +9,9 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.Sink
+import okio.buffer
 import okio.sink
+import okio.source
 import org.treeWare.metaModel.aux.SemanticVersionError
 import org.treeWare.metaModel.aux.getResolvedVersionAux
 import org.treeWare.model.core.MainModel
@@ -22,7 +24,6 @@ import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.set.SetResponse
 import org.treeWare.server.common.TreeWareServer
 import org.treeWare.util.buffered
-import java.io.InputStreamReader
 
 private const val VERSION_PATH_PARAMETER_NAME = "version"
 private const val VERSION_PREFIX = "v"
@@ -45,8 +46,8 @@ private fun Route.setModelRoute(treeWareServer: TreeWareServer) {
         if (versionError != null) respondVersionError(call, versionError, true)
         else withContext(Dispatchers.IO) {
             val principal = call.principal<Principal>()
-            val reader = InputStreamReader(call.receiveStream())
-            val setResponse = treeWareServer.set(principal, reader)
+            val source = call.receiveStream().source().buffer()
+            val setResponse = treeWareServer.set(principal, source)
             val httpStatusCode = setResponse.errorCode.toHttpStatusCode()
             when (setResponse) {
                 is SetResponse.Success -> call.respond(httpStatusCode, "")
@@ -80,8 +81,8 @@ private fun Route.getModelRoute(treeWareServer: TreeWareServer) {
         if (versionError != null) respondVersionError(call, versionError, true)
         else withContext(Dispatchers.IO) {
             val principal = call.principal<Principal>()
-            val reader = InputStreamReader(call.receiveStream())
-            val getResponse = treeWareServer.get(principal, reader)
+            val source = call.receiveStream().source().buffer()
+            val getResponse = treeWareServer.get(principal, source)
             val httpStatusCode = getResponse.errorCode.toHttpStatusCode()
             when (getResponse) {
                 is GetResponse.Model -> call.respondOutputStream(

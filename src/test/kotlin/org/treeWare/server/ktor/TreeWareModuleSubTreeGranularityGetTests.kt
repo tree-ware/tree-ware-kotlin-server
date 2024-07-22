@@ -8,11 +8,11 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.addressBookMetaModel
+import org.treeWare.model.AddressBookMutableMainModelFactory
 import org.treeWare.model.assertMatchesJsonString
 import org.treeWare.model.core.MutableMainModel
 import org.treeWare.model.encoder.EncodePasswords
-import org.treeWare.model.operator.get.GetResponse
-import org.treeWare.model.operator.set.SetResponse
+import org.treeWare.model.operator.Response
 import org.treeWare.server.TEST_AUTHENTICATION_PROVIDER_NAME
 import org.treeWare.server.addValidApiKeyHeader
 import org.treeWare.server.addressBookPermitAllRbacGetter
@@ -22,7 +22,7 @@ import org.treeWare.server.installTestAuthentication
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private val testResponse = GetResponse.Model(MutableMainModel(addressBookMetaModel).also { it.getOrNewRoot() })
+private val testResponse = Response.Model(MutableMainModel(addressBookMetaModel).also { it.getOrNewRoot() })
 
 class TreeWareModuleSubTreeGranularityGetTests {
     @Test
@@ -58,12 +58,13 @@ class TreeWareModuleSubTreeGranularityGetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         testApplication {
@@ -104,12 +105,13 @@ class TreeWareModuleSubTreeGranularityGetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         testApplication {

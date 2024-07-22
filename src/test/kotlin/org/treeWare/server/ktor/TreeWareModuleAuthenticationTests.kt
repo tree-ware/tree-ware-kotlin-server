@@ -4,9 +4,9 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
+import org.treeWare.model.AddressBookMutableMainModelFactory
 import org.treeWare.model.operator.ErrorCode
-import org.treeWare.model.operator.get.GetResponse
-import org.treeWare.model.operator.set.SetResponse
+import org.treeWare.model.operator.Response
 import org.treeWare.server.*
 import org.treeWare.server.common.TreeWareServer
 import kotlin.test.Test
@@ -18,13 +18,14 @@ class TreeWareModuleAuthenticationTests {
         val treeWareServer =
             TreeWareServer(
                 ADDRESS_BOOK_META_MODEL_FILES,
+                AddressBookMutableMainModelFactory,
                 false,
                 emptyList(),
                 emptyList(),
                 {},
                 ::addressBookPermitAllRbacGetter,
-                { SetResponse.Success }) {
-                GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList())
+                { Response.Success }) {
+                Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList())
             }
         testApplication {
             application {

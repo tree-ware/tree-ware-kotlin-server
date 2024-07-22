@@ -8,7 +8,8 @@ import io.mockk.called
 import io.mockk.mockk
 import io.mockk.verify
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
-import org.treeWare.model.operator.set.SetResponse
+import org.treeWare.model.AddressBookMutableMainModelFactory
+import org.treeWare.model.operator.Response
 import org.treeWare.server.TEST_AUTHENTICATION_PROVIDER_NAME
 import org.treeWare.server.addValidApiKeyHeader
 import org.treeWare.server.addressBookPermitAllRbacGetter
@@ -27,12 +28,13 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         testApplication {
@@ -60,12 +62,13 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         testApplication {
@@ -100,12 +103,13 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         testApplication {
@@ -140,12 +144,13 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         testApplication {
@@ -184,12 +189,13 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         testApplication {
@@ -217,12 +223,13 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         testApplication {
@@ -257,12 +264,13 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         testApplication {
@@ -297,12 +305,13 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         testApplication {

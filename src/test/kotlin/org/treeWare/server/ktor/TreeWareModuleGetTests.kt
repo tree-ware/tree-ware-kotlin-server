@@ -8,13 +8,13 @@ import io.mockk.*
 import okio.Buffer
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.addressBookMetaModel
+import org.treeWare.model.AddressBookMutableMainModelFactory
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.encodeJson
 import org.treeWare.model.getMainModelFromJsonString
 import org.treeWare.model.operator.ElementModelError
 import org.treeWare.model.operator.ErrorCode
-import org.treeWare.model.operator.get.GetResponse
-import org.treeWare.model.operator.set.SetResponse
+import org.treeWare.model.operator.Response
 import org.treeWare.server.*
 import org.treeWare.server.common.Getter
 import org.treeWare.server.common.TreeWareServer
@@ -29,12 +29,13 @@ class TreeWareModuleGetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         testApplication {
@@ -69,12 +70,13 @@ class TreeWareModuleGetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitNoneRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         val getRequest = readFile("model/address_book_1.json")
@@ -110,12 +112,13 @@ class TreeWareModuleGetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitClarkKentRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         val getRequest = readFile("model/address_book_1.json")
@@ -149,16 +152,17 @@ class TreeWareModuleGetTests {
     fun `Errors returned by getter must be returned as get-response`() {
         val errorList = listOf(ElementModelError("", "Error 1"), ElementModelError("/", "Error 2"))
         val getter = mockk<Getter>()
-        every { getter.invoke(ofType()) } returns GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, errorList)
+        every { getter.invoke(ofType()) } returns Response.ErrorList(ErrorCode.CLIENT_ERROR, errorList)
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         val getRequest = readFile("model/address_book_1.json")
@@ -204,16 +208,17 @@ class TreeWareModuleGetTests {
         val expectedResponseJson = readFile("model/address_book_1.json")
         val expectedResponse = getMainModelFromJsonString(addressBookMetaModel, expectedResponseJson)
         val getter = mockk<Getter>()
-        every { getter.invoke(ofType()) } returns GetResponse.Model(expectedResponse)
+        every { getter.invoke(ofType()) } returns Response.Model(expectedResponse)
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success },
+            { Response.Success },
             getter
         )
         val getRequest = readFile("model/address_book_1.json")

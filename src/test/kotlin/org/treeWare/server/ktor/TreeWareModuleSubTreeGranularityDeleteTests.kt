@@ -9,12 +9,12 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
+import org.treeWare.model.AddressBookMutableMainModelFactory
 import org.treeWare.model.assertMatchesJsonString
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.MultiAuxEncoder
 import org.treeWare.model.operator.ErrorCode
-import org.treeWare.model.operator.get.GetResponse
-import org.treeWare.model.operator.set.SetResponse
+import org.treeWare.model.operator.Response
 import org.treeWare.model.operator.set.aux.SET_AUX_NAME
 import org.treeWare.model.operator.set.aux.SetAuxEncoder
 import org.treeWare.model.operator.set.aux.SetAuxPlugin
@@ -33,17 +33,18 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
     @Test
     fun `Sub-tree delete-requests must not contain DELETE aux under the sub-tree root`() {
         val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns SetResponse.Success
+        every { setter.invoke(ofType()) } returns Response.Success
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
             {},
             ::addressBookPermitAllRbacGetter,
             setter
-        ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+        ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
             application {
                 installTestAuthentication()
@@ -88,17 +89,18 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
     @Test
     fun `Sub-tree delete-requests must not contain paths under the sub-tree root`() {
         val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns SetResponse.Success
+        every { setter.invoke(ofType()) } returns Response.Success
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
             {},
             ::addressBookPermitAllRbacGetter,
             setter
-        ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+        ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
             application {
                 installTestAuthentication()
@@ -141,17 +143,18 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
     @Test
     fun `Valid sub-tree delete-requests must call the setter with the sub-tree populated`() {
         val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns SetResponse.Success
+        every { setter.invoke(ofType()) } returns Response.Success
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
             {},
             ::addressBookPermitAllRbacGetter,
             setter
-        ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+        ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
             application {
                 installTestAuthentication()

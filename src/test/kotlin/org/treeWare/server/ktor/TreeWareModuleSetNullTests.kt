@@ -9,9 +9,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
+import org.treeWare.model.AddressBookMutableMainModelFactory
 import org.treeWare.model.operator.ErrorCode
-import org.treeWare.model.operator.get.GetResponse
-import org.treeWare.model.operator.set.SetResponse
+import org.treeWare.model.operator.Response
 import org.treeWare.model.operator.set.aux.SetAuxPlugin
 import org.treeWare.server.TEST_AUTHENTICATION_PROVIDER_NAME
 import org.treeWare.server.addValidApiKeyHeader
@@ -26,7 +26,7 @@ class TreeWareModuleSetNullTests {
     @Test
     fun `A set-request with null root must not call the setter`() {
         val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns SetResponse.Success
+        every { setter.invoke(ofType()) } returns Response.Success
 
         val setRequest = """
             {
@@ -37,13 +37,14 @@ class TreeWareModuleSetNullTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
             {},
             ::addressBookPermitAllRbacGetter,
             setter
-        ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+        ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
             application {
                 installTestAuthentication()
@@ -73,7 +74,7 @@ class TreeWareModuleSetNullTests {
     @Test
     fun `A set-request with empty root must not call the setter`() {
         val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns SetResponse.Success
+        every { setter.invoke(ofType()) } returns Response.Success
 
         val setRequest = """
             {
@@ -84,13 +85,14 @@ class TreeWareModuleSetNullTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
             {},
             ::addressBookPermitAllRbacGetter,
             setter
-        ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+        ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
             application {
                 installTestAuthentication()
@@ -120,7 +122,7 @@ class TreeWareModuleSetNullTests {
     @Test
     fun `A set-request with null fields must not call the setter`() {
         val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns SetResponse.Success
+        every { setter.invoke(ofType()) } returns Response.Success
 
         val setRequest = """
                 |{
@@ -133,13 +135,14 @@ class TreeWareModuleSetNullTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
             {},
             ::addressBookPermitAllRbacGetter,
             setter
-        ) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+        ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         testApplication {
             application {
                 installTestAuthentication()

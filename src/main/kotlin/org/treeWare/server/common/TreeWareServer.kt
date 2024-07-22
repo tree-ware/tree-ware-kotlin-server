@@ -8,15 +8,15 @@ import org.treeWare.metaModel.getMainMetaName
 import org.treeWare.metaModel.newMetaModelFromJsonFiles
 import org.treeWare.model.core.MainModel
 import org.treeWare.model.core.MutableMainModel
+import org.treeWare.model.core.MutableMainModelFactory
+import org.treeWare.model.core.defaultRootEntityFactory
 import org.treeWare.model.decoder.decodeJson
 import org.treeWare.model.decoder.stateMachine.MultiAuxDecodingStateMachineFactory
 import org.treeWare.model.encoder.MultiAuxEncoder
 import org.treeWare.model.operator.*
-import org.treeWare.model.operator.get.GetResponse
 import org.treeWare.model.operator.rbac.FullyPermitted
 import org.treeWare.model.operator.rbac.NotPermitted
 import org.treeWare.model.operator.rbac.PartiallyPermitted
-import org.treeWare.model.operator.set.SetResponse
 
 /** Perform initialization before the server starts serving. */
 typealias Initializer = (mainMeta: MainModel) -> Unit
@@ -25,13 +25,14 @@ typealias Initializer = (mainMeta: MainModel) -> Unit
 typealias RbacGetter = (principal: Principal?, mainMeta: MainModel) -> MainModel?
 
 /** Set the model and returns errors if any. */
-typealias Setter = (mainModel: MutableMainModel) -> SetResponse
+typealias Setter = (mainModel: MutableMainModel) -> Response
 
 /** Return the requested model or errors if any. */
-typealias Getter = (request: MainModel) -> GetResponse
+typealias Getter = (request: MainModel) -> Response
 
 class TreeWareServer(
     metaModelFiles: List<String>,
+    private val mutableMainModelFactory: MutableMainModelFactory,
     logMetaModelFullNames: Boolean,
     metaModelAuxPlugins: List<MetaModelAuxPlugin>,
     modelAuxPlugins: List<MetaModelAuxPlugin>,
@@ -52,7 +53,7 @@ class TreeWareServer(
     init {
         logger.info { "Meta-model files: $metaModelFiles" }
         metaModel = newMetaModelFromJsonFiles(
-            metaModelFiles, logMetaModelFullNames, hasher, cipher, metaModelAuxPlugins, true
+            metaModelFiles, logMetaModelFullNames, hasher, cipher, ::defaultRootEntityFactory, metaModelAuxPlugins, true
         ).metaModel ?: throw IllegalArgumentException("Meta-model has validation errors")
 
         modelMultiAuxDecodingStateMachineFactory =
@@ -70,72 +71,81 @@ class TreeWareServer(
         logger.info { "tree-ware server started" }
     }
 
-    fun set(principal: Principal?, request: BufferedSource): SetResponse {
-        val (model, decodeErrors) = decodeJson(
+    fun set(principal: Principal?, request: BufferedSource): Response {
+        val setRequest = mutableMainModelFactory.getNewInstance()
+        val decodeErrors = decodeJson(
             request,
-            metaModel,
+            setRequest,
             multiAuxDecodingStateMachineFactory = modelMultiAuxDecodingStateMachineFactory
         )
-        if (model == null || decodeErrors.isNotEmpty()) return SetResponse.ErrorList(
+        if (decodeErrors.isNotEmpty()) return Response.ErrorList(
             ErrorCode.CLIENT_ERROR,
             decodeErrors.map { ElementModelError("", it) })
-        val validationErrors = validateSet(model)
-        if (validationErrors.isNotEmpty()) return SetResponse.ErrorList(ErrorCode.CLIENT_ERROR, validationErrors)
-        val granularityErrors = populateSubTreeGranularityDeleteRequest(model)
-        if (granularityErrors.isNotEmpty()) return SetResponse.ErrorList(ErrorCode.CLIENT_ERROR, granularityErrors)
-        val rbac = rbacGetter(principal, metaModel) ?: return SetResponse.ErrorList(
+        if (setRequest.root == null) return Response.ErrorList(
+            ErrorCode.CLIENT_ERROR,
+            listOf(ElementModelError("", "Empty JSON")))
+        val validationErrors = validateSet(setRequest)
+        if (validationErrors.isNotEmpty()) return Response.ErrorList(ErrorCode.CLIENT_ERROR, validationErrors)
+        val granularityErrors = populateSubTreeGranularityDeleteRequest(setRequest)
+        if (granularityErrors.isNotEmpty()) return Response.ErrorList(ErrorCode.CLIENT_ERROR, granularityErrors)
+        val rbac = rbacGetter(principal, metaModel) ?: return Response.ErrorList(
             ErrorCode.SERVER_ERROR,
             listOf(ElementModelError("/", "Unable to authorize the request"))
         )
-        return when (val permittedSetRequest = permitSet(model, rbac)) {
+        return when (val permittedSetRequest = permitSet(setRequest, rbac, mutableMainModelFactory)) {
             is FullyPermitted -> setter(permittedSetRequest.permitted)
             // TODO(#40): return errors that indicate which parts are not permitted
-            is PartiallyPermitted -> SetResponse.ErrorList(
+            is PartiallyPermitted -> Response.ErrorList(
                 ErrorCode.UNAUTHORIZED,
                 listOf(ElementModelError("", "Unauthorized for some parts of the request"))
             )
-            NotPermitted -> SetResponse.ErrorList(
+            NotPermitted -> Response.ErrorList(
                 ErrorCode.UNAUTHORIZED,
                 listOf(ElementModelError("", "Unauthorized for all parts of the request"))
             )
         }
     }
 
-    fun get(principal: Principal?, request: BufferedSource): GetResponse {
-        val (model, decodeErrors) = decodeJson(
+    fun get(principal: Principal?, request: BufferedSource): Response {
+        val getRequest = mutableMainModelFactory.getNewInstance()
+        val decodeErrors = decodeJson(
             request,
-            metaModel,
+            getRequest,
             multiAuxDecodingStateMachineFactory = modelMultiAuxDecodingStateMachineFactory
         )
-        if (model == null || decodeErrors.isNotEmpty()) return GetResponse.ErrorList(
+        if (decodeErrors.isNotEmpty()) return Response.ErrorList(
             ErrorCode.CLIENT_ERROR,
             decodeErrors.map { ElementModelError("", it) })
-        populateSubTreeGranularityGetRequest(model)
-        val rbac = rbacGetter(principal, metaModel) ?: return GetResponse.ErrorList(
+        if (getRequest.root == null) return Response.ErrorList(
+            ErrorCode.CLIENT_ERROR,
+            listOf(ElementModelError("", "Empty JSON")))
+        populateSubTreeGranularityGetRequest(getRequest)
+        val rbac = rbacGetter(principal, metaModel) ?: return Response.ErrorList(
             ErrorCode.SERVER_ERROR,
             listOf(ElementModelError("/", "Unable to authorize the request"))
         )
-        return when (val permittedGetRequest = permitGet(model, rbac)) {
-            is FullyPermitted -> permitGetResponse(getter(permittedGetRequest.permitted), rbac)
+        return when (val permittedGetRequest = permitGet(getRequest, rbac, mutableMainModelFactory)) {
+            is FullyPermitted -> getWithPermittedRequest(permittedGetRequest.permitted, rbac)
             // TODO(#40): return errors that indicate which parts are not permitted
-            is PartiallyPermitted -> GetResponse.ErrorList(
+            is PartiallyPermitted -> Response.ErrorList(
                 ErrorCode.UNAUTHORIZED,
                 listOf(ElementModelError("", "Unauthorized for some parts of the request"))
             )
-            NotPermitted -> GetResponse.ErrorList(
+            NotPermitted -> Response.ErrorList(
                 ErrorCode.UNAUTHORIZED,
                 listOf(ElementModelError("", "Unauthorized for all parts of the request"))
             )
         }
     }
 
-    private fun permitGetResponse(getResponse: GetResponse, rbac: MainModel): GetResponse = when (getResponse) {
-        is GetResponse.Model -> when (val permittedGetResponse = permitGet(getResponse.model, rbac)) {
-            is FullyPermitted -> GetResponse.Model(permittedGetResponse.permitted)
-            is PartiallyPermitted -> GetResponse.Model(permittedGetResponse.permitted)
-            NotPermitted -> GetResponse.Model(MutableMainModel(metaModel).also { it.getOrNewRoot() })
+    private fun getWithPermittedRequest(permittedGetRequest: MainModel, rbac: MainModel): Response {
+        return when (val getterResponse = getter(permittedGetRequest)) {
+            is Response.Model -> when (val permittedGetResponse = permitGet(getterResponse.model, rbac, mutableMainModelFactory)) {
+                is FullyPermitted -> Response.Model(permittedGetResponse.permitted)
+                is PartiallyPermitted -> Response.Model(permittedGetResponse.permitted)
+                NotPermitted -> Response.Model(MutableMainModel(metaModel).also { it.getOrNewRoot() })
+            }
+            else -> getterResponse
         }
-        is GetResponse.ErrorList -> getResponse
-        is GetResponse.ErrorModel -> getResponse
     }
 }

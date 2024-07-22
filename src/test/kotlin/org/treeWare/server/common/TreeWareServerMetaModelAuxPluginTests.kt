@@ -5,10 +5,10 @@ import io.mockk.mockk
 import io.mockk.verifyOrder
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.aux.MetaModelAuxPlugin
+import org.treeWare.model.AddressBookMutableMainModelFactory
 import org.treeWare.model.decoder.stateMachine.StringAuxStateMachine
 import org.treeWare.model.operator.ErrorCode
-import org.treeWare.model.operator.get.GetResponse
-import org.treeWare.model.operator.set.SetResponse
+import org.treeWare.model.operator.Response
 import org.treeWare.server.addressBookPermitAllRbacGetter
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -25,12 +25,13 @@ class TreeWareServerMetaModelAuxPluginTests {
         // Create the server.
         TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
+            AddressBookMutableMainModelFactory,
             false,
             listOf(validMetaModelAuxPlugin),
             emptyList(),
             {},
             ::addressBookPermitAllRbacGetter,
-            { SetResponse.Success }) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+            { Response.Success }) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
 
         // TODO(deepak-nulu): change this to verifySequence. Currently auxName
         // and auxDecodingStateMachineFactory get called multiple times. This
@@ -55,12 +56,13 @@ class TreeWareServerMetaModelAuxPluginTests {
         assertFailsWith<IllegalArgumentException>("Meta-model has plugin validation errors") {
             TreeWareServer(
                 ADDRESS_BOOK_META_MODEL_FILES,
+                AddressBookMutableMainModelFactory,
                 false,
                 listOf(invalidMetaModelAuxPlugin),
                 emptyList(),
                 {},
                 ::addressBookPermitAllRbacGetter,
-                { SetResponse.Success }) { GetResponse.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+                { Response.Success }) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         }
 
         // TODO(deepak-nulu): change this to verifySequence. See TODO above for details.

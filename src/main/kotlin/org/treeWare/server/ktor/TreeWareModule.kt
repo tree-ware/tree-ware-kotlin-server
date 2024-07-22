@@ -20,8 +20,7 @@ import org.treeWare.model.encoder.JsonWireFormatEncoder
 import org.treeWare.model.encoder.encodeJson
 import org.treeWare.model.operator.ElementModelError
 import org.treeWare.model.operator.ErrorCode
-import org.treeWare.model.operator.get.GetResponse
-import org.treeWare.model.operator.set.SetResponse
+import org.treeWare.model.operator.Response
 import org.treeWare.server.common.TreeWareServer
 import org.treeWare.util.buffered
 
@@ -50,14 +49,15 @@ private fun Route.setModelRoute(treeWareServer: TreeWareServer) {
             val setResponse = treeWareServer.set(principal, source)
             val httpStatusCode = setResponse.errorCode.toHttpStatusCode()
             when (setResponse) {
-                is SetResponse.Success -> call.respond(httpStatusCode, "")
-                is SetResponse.ErrorList -> call.respondOutputStream(
+                is Response.Success -> call.respond(httpStatusCode, "")
+                is Response.ErrorList -> call.respondOutputStream(
                     ContentType.Application.Json,
                     httpStatusCode
                 ) {
                     writeErrorList(this.sink(), setResponse.errorList, true)
                 }
-                is SetResponse.ErrorModel -> call.respondOutputStream(
+
+                is Response.ErrorModel -> call.respondOutputStream(
                     ContentType.Application.Json,
                     httpStatusCode
                 ) {
@@ -70,6 +70,8 @@ private fun Route.setModelRoute(treeWareServer: TreeWareServer) {
                         true
                     )
                 }
+
+                is Response.Model -> call.respond(httpStatusCode, "") // this case is not expected
             }
         }
     }
@@ -85,7 +87,7 @@ private fun Route.getModelRoute(treeWareServer: TreeWareServer) {
             val getResponse = treeWareServer.get(principal, source)
             val httpStatusCode = getResponse.errorCode.toHttpStatusCode()
             when (getResponse) {
-                is GetResponse.Model -> call.respondOutputStream(
+                is Response.Model -> call.respondOutputStream(
                     ContentType.Application.Json,
                     httpStatusCode
                 ) {
@@ -100,14 +102,16 @@ private fun Route.getModelRoute(treeWareServer: TreeWareServer) {
                         true
                     )
                 }
-                is GetResponse.ErrorList -> call.respondOutputStream(
+
+                is Response.ErrorList -> call.respondOutputStream(
                     ContentType.Application.Json,
                     httpStatusCode
                 ) {
                     // TODO(deepak-nulu): get prettyPrint value from URL query-param.
                     writeErrorList(this.sink(), getResponse.errorList, true)
                 }
-                is GetResponse.ErrorModel -> call.respondOutputStream(
+
+                is Response.ErrorModel -> call.respondOutputStream(
                     ContentType.Application.Json,
                     httpStatusCode
                 ) {
@@ -120,6 +124,8 @@ private fun Route.getModelRoute(treeWareServer: TreeWareServer) {
                         true
                     )
                 }
+
+                is Response.Success -> call.respond(httpStatusCode, "") // this case is not expected
             }
         }
     }

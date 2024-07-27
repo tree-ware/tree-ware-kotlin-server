@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 // conveys this.
 allprojects {
     group = "org.tree-ware.tree-ware-kotlin-server"
-    version = "0.1.0.1"
+    version = "0.2.0.0"
 }
 
 val ktorApiKeyVersion = "1.1.0"
@@ -16,7 +16,7 @@ val mockkVersion = "1.12.0"
 plugins {
     kotlin("jvm") version "1.7.0"
     id("idea")
-    id("org.tree-ware.core") version "0.1.0.0-SNAPSHOT" // TODO #### drop -SNAPSHOT
+    id("org.tree-ware.core") version "0.1.0.0"
     id("java-library")
     id("maven-publish")
 }
@@ -24,7 +24,6 @@ plugins {
 repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
-    mavenLocal() // TODO #### delete
 }
 
 tasks.withType<KotlinCompile> {

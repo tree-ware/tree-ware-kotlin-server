@@ -24,14 +24,13 @@ import kotlin.test.assertEquals
 
 class TreeWareModuleSetNullTests {
     @Test
-    fun `A set-request with null root must not call the setter`() {
+    fun `An empty set-request must not call the setter`() {
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns Response.Success
 
         val setRequest = """
             {
-              "address_book__set_": "create",
-              "address_book": null
+              "set_": "create"
             }
         """.trimIndent()
 
@@ -58,55 +57,7 @@ class TreeWareModuleSetNullTests {
                 |[
                 |  {
                 |    "path": "",
-                |    "error": "Root entities must not be null; use empty object {} instead"
-                |  }
-                |]
-            """.trimMargin()
-            assertEquals(HttpStatusCode.BadRequest, response.status)
-            assertEquals(expectedErrors, response.bodyAsText())
-        }
-
-        verify {
-            setter wasNot called
-        }
-    }
-
-    @Test
-    fun `A set-request with empty root must not call the setter`() {
-        val setter = mockk<Setter>()
-        every { setter.invoke(ofType()) } returns Response.Success
-
-        val setRequest = """
-            {
-              "address_book__set_": "create",
-              "address_book": {}
-            }
-        """.trimIndent()
-
-        val treeWareServer = TreeWareServer(
-            ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableEntityModelFactory,
-            false,
-            emptyList(),
-            listOf(SetAuxPlugin()),
-            {},
-            ::addressBookPermitAllRbacGetter,
-            setter
-        ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
-        testApplication {
-            application {
-                installTestAuthentication()
-                treeWareModule(treeWareServer, TEST_AUTHENTICATION_PROVIDER_NAME)
-            }
-            val response = client.post("/tree-ware/api/set/v1") {
-                addValidApiKeyHeader()
-                setBody(setRequest)
-            }
-            val expectedErrors = """
-                |[
-                |  {
-                |    "path": "/address_book",
-                |    "error": "required field not found: name"
+                |    "error": "Empty request"
                 |  }
                 |]
             """.trimMargin()
@@ -126,10 +77,8 @@ class TreeWareModuleSetNullTests {
 
         val setRequest = """
                 |{
-                |  "address_book__set_": "create",
-                |  "address_book": {
-                |    "name": null
-                |  }
+                |  "set_": "create",
+                |  "name": null
                 |}
             """.trimMargin()
 
@@ -155,7 +104,7 @@ class TreeWareModuleSetNullTests {
             val expectedErrors = """
                 |[
                 |  {
-                |    "path": "/address_book/name",
+                |    "path": "/name",
                 |    "error": "string values must not be null in set-requests"
                 |  }
                 |]

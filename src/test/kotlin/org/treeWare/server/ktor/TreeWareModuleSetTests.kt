@@ -55,7 +55,7 @@ class TreeWareModuleSetTests {
                 |[
                 |  {
                 |    "path": "",
-                |    "error": "Empty JSON"
+                |    "error": "Empty request"
                 |  }
                 |]
             """.trimMargin()
@@ -90,10 +90,8 @@ class TreeWareModuleSetTests {
             }
             val setRequest = """
                 |{
-                |  "address_book__set_": "create",
-                |  "address_book": {
-                |    "name": "Super Heroes"
-                |  }
+                |  "set_": "create",
+                |  "name": "Super Heroes"
                 |}
             """.trimMargin()
             val response = client.post("/tree-ware/api/set/v1") {
@@ -139,24 +137,22 @@ class TreeWareModuleSetTests {
             }
             val setRequest = """
                 |{
-                |  "address_book__set_": "create",
-                |  "address_book": {
-                |    "name": "Super Heroes",
-                |    "person": [
-                |      {
-                |        "id": "$CLARK_KENT_ID",
-                |        "first_name": "Clark",
-                |        "last_name": "Kent",
-                |        "is_hero": true
-                |      },
-                |      {
-                |        "id": "$LOIS_LANE_ID",
-                |        "first_name": "Lois",
-                |        "last_name": "Lane",
-                |        "is_hero": false
-                |      }
-                |    ]
-                |  }
+                |  "set_": "create",
+                |  "name": "Super Heroes",
+                |  "persons": [
+                |    {
+                |      "id": "$CLARK_KENT_ID",
+                |      "first_name": "Clark",
+                |      "last_name": "Kent",
+                |      "is_hero": true
+                |    },
+                |    {
+                |      "id": "$LOIS_LANE_ID",
+                |      "first_name": "Lois",
+                |      "last_name": "Lane",
+                |      "is_hero": false
+                |    }
+                |  ]
                 |}
             """.trimMargin()
             val response = client.post("/tree-ware/api/set/v1") {
@@ -187,10 +183,8 @@ class TreeWareModuleSetTests {
 
         val setRequest = """
                 |{
-                |  "address_book__set_": "create",
-                |  "address_book": {
-                |    "name": "Super Heroes"
-                |  }
+                |  "set_": "create",
+                |  "name": "Super Heroes"
                 |}
             """.trimMargin()
 
@@ -232,10 +226,8 @@ class TreeWareModuleSetTests {
 
         val setRequest = """
                 |{
-                |  "address_book__set_": "create",
-                |  "address_book": {
-                |    "name": "Super Heroes"
-                |  }
+                |  "set_": "create",
+                |  "name": "Super Heroes"
                 |}
             """.trimMargin()
 
@@ -292,10 +284,8 @@ class TreeWareModuleSetTests {
 
         val setRequest = """
                 |{
-                |  "address_book__set_": "create",
-                |  "address_book": {
-                |    "name": "Super Heroes"
-                |  }
+                |  "set_": "create",
+                |  "name": "Super Heroes"
                 |}
             """.trimMargin()
 

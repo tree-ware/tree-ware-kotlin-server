@@ -11,6 +11,7 @@ import org.treeWare.model.AddressBookMutableEntityModelFactory
 import org.treeWare.model.assertMatchesJsonString
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.operator.Response
+import org.treeWare.model.operator.logModel
 import org.treeWare.server.TEST_AUTHENTICATION_PROVIDER_NAME
 import org.treeWare.server.addValidApiKeyHeader
 import org.treeWare.server.addressBookPermitAllRbacGetter
@@ -30,27 +31,25 @@ class TreeWareModuleSubTreeGranularityGetTests {
 
         val getRequest = """
             {
-              "address_book": {
-                "sub_tree_persons": [
-                  {
-                    "id": null,
-                    "first_name": null,
-                    "last_name": null,
-                    "relation": [
-                      {
-                        "id": null,
-                        "relationship": null,
-                        "person": null
-                      }
-                    ],
-                    "is_hero": null,
-                    "hero_details": {
-                      "strengths": null,
-                      "weaknesses": null
+              "sub_tree_persons": [
+                {
+                  "id": null,
+                  "first_name": null,
+                  "last_name": null,
+                  "relations": [
+                    {
+                      "id": null,
+                      "relationship": null,
+                      "person": null
                     }
+                  ],
+                  "is_hero": null,
+                  "hero_details": {
+                    "strengths": null,
+                    "weaknesses": null
                   }
-                ]
-              }
+                }
+              ]
             }
         """.trimIndent()
 
@@ -91,13 +90,11 @@ class TreeWareModuleSubTreeGranularityGetTests {
 
         val getRequest = """
             {
-              "address_book": {
-                "sub_tree_persons": [
-                  {
-                    "id": null
-                  }
-                ]
-              }
+              "sub_tree_persons": [
+                {
+                  "id": null
+                }
+              ]
             }
         """.trimIndent()
 
@@ -126,35 +123,40 @@ class TreeWareModuleSubTreeGranularityGetTests {
 
         val populatedGetRequest = """
             {
-              "address_book": {
-                "sub_tree_persons": [
-                  {
-                    "id": null,
-                    "first_name": null,
-                    "last_name": null,
-                    "hero_name": null,
-                    "email": [],
-                    "picture": null,
-                    "relation": [
-                      {
-                        "id": null,
-                        "relationship": null,
-                        "person": null
-                      }
-                    ],
-                    "password": null,
-                    "previous_passwords": [],
-                    "main_secret": null,
-                    "other_secrets": [],
-                    "group": null,
-                    "is_hero": null,
-                    "hero_details": {
-                      "strengths": null,
-                      "weaknesses": null
+              "sub_tree_persons": [
+                {
+                  "id": null,
+                  "first_name": null,
+                  "last_name": null,
+                  "hero_name": null,
+                  "picture": null,
+                  "relations": [
+                    {
+                      "id": null,
+                      "relationship": null,
+                      "person": null
+                    }
+                  ],
+                  "password": null,
+                  "main_secret": null,
+                  "group": null,
+                  "is_hero": null,
+                  "hero_details": {
+                    "strengths": null,
+                    "weaknesses": null
+                  },
+                  "keyless": {
+                    "name": null,
+                    "keyless_child": {
+                      "name": null
+                    },
+                    "keyed_child": {
+                      "name": null,
+                      "other": null
                     }
                   }
-                ]
-              }
+                }
+              ]
             }
         """.trimIndent()
 

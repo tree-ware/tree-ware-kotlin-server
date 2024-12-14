@@ -15,6 +15,7 @@ import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.MultiAuxEncoder
 import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.Response
+import org.treeWare.model.operator.logModel
 import org.treeWare.model.operator.set.aux.SET_AUX_NAME
 import org.treeWare.model.operator.set.aux.SetAuxEncoder
 import org.treeWare.model.operator.set.aux.SetAuxPlugin
@@ -52,17 +53,15 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
             }
             val setRequest = """
                 {
-                  "address_book": {
-                    "sub_tree_persons": [
-                      {
-                        "set_": "delete",
-                        "id": "cc477201-48ec-4367-83a4-7fdbd92f8a6f",
-                        "hero_details": {
-                          "set_": "delete"
-                        }
+                  "sub_tree_persons": [
+                    {
+                      "set_": "delete",
+                      "id": "cc477201-48ec-4367-83a4-7fdbd92f8a6f",
+                      "hero_details": {
+                        "set_": "delete"
                       }
-                    ]
-                  }
+                    }
+                  ]
                 }
             """.trimIndent()
             val response = client.post("/tree-ware/api/set/v1") {
@@ -72,7 +71,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
             val expectedErrors = """
                 [
                   {
-                    "path": "/address_book/sub_tree_persons/cc477201-48ec-4367-83a4-7fdbd92f8a6f/hero_details",
+                    "path": "/sub_tree_persons/cc477201-48ec-4367-83a4-7fdbd92f8a6f/hero_details",
                     "error": "set_ aux is not valid inside a sub-tree with sub_tree granularity"
                   }
                 ]
@@ -108,15 +107,13 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
             }
             val setRequest = """
                 {
-                  "address_book": {
-                    "sub_tree_persons": [
-                      {
-                        "set_": "delete",
-                        "id": "cc477201-48ec-4367-83a4-7fdbd92f8a6f",
-                        "hero_details": {}
-                      }
-                    ]
-                  }
+                  "sub_tree_persons": [
+                    {
+                      "set_": "delete",
+                      "id": "cc477201-48ec-4367-83a4-7fdbd92f8a6f",
+                      "hero_details": {}
+                    }
+                  ]
                 }
             """.trimIndent()
             val response = client.post("/tree-ware/api/set/v1") {
@@ -126,7 +123,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
             val expectedErrors = """
                 [
                   {
-                    "path": "/address_book/sub_tree_persons/cc477201-48ec-4367-83a4-7fdbd92f8a6f",
+                    "path": "/sub_tree_persons/cc477201-48ec-4367-83a4-7fdbd92f8a6f",
                     "error": "A delete-request must only specify the root of a sub-tree with sub_tree granularity"
                   }
                 ]
@@ -162,14 +159,12 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
             }
             val setRequest = """
                 {
-                  "address_book": {
-                    "sub_tree_persons": [
-                      {
-                        "set_": "delete",
-                        "id": "cc477201-48ec-4367-83a4-7fdbd92f8a6f"
-                      }
-                    ]
-                  }
+                  "sub_tree_persons": [
+                    {
+                      "set_": "delete",
+                      "id": "cc477201-48ec-4367-83a4-7fdbd92f8a6f"
+                    }
+                  ]
                 }
             """.trimIndent()
             val response = client.post("/tree-ware/api/set/v1") {
@@ -183,23 +178,31 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
 
         val populatedSetRequest = """
             {
-              "address_book": {
-                "sub_tree_persons": [
-                  {
+              "sub_tree_persons": [
+                {
+                  "set_": "delete",
+                  "id": "cc477201-48ec-4367-83a4-7fdbd92f8a6f",
+                  "relations": [
+                    {
+                      "set_": "delete",
+                      "id": null
+                    }
+                  ],
+                  "hero_details": {
+                    "set_": "delete"
+                  },
+                  "keyless": {
                     "set_": "delete",
-                    "id": "cc477201-48ec-4367-83a4-7fdbd92f8a6f",
-                    "relation": [
-                      {
-                        "set_": "delete",
-                        "id": null
-                      }
-                    ],
-                    "hero_details": {
+                    "keyless_child": {
                       "set_": "delete"
+                    },
+                    "keyed_child": {
+                      "set_": "delete",
+                      "name": null
                     }
                   }
-                ]
-              }
+                }
+              ]
             }
         """.trimIndent()
 

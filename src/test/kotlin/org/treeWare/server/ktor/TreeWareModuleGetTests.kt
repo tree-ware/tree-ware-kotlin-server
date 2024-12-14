@@ -50,7 +50,7 @@ class TreeWareModuleGetTests {
                 |[
                 |  {
                 |    "path": "",
-                |    "error": "Empty JSON"
+                |    "error": "Empty request"
                 |  }
                 |]
             """.trimMargin()

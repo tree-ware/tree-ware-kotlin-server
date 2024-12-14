@@ -14,7 +14,7 @@ import okio.sink
 import okio.source
 import org.treeWare.metaModel.aux.SemanticVersionError
 import org.treeWare.metaModel.aux.getResolvedVersionAux
-import org.treeWare.model.core.MainModel
+import org.treeWare.model.core.EntityModel
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.JsonWireFormatEncoder
 import org.treeWare.model.encoder.encodeJson
@@ -131,11 +131,11 @@ private fun Route.getModelRoute(treeWareServer: TreeWareServer) {
     }
 }
 
-private fun validateModelVersion(call: ApplicationCall, mainMeta: MainModel): String? {
+private fun validateModelVersion(call: ApplicationCall, metaModel: EntityModel): String? {
     val version = requireNotNull(call.parameters[VERSION_PATH_PARAMETER_NAME])
     if (!version.startsWith(VERSION_PREFIX)) return "Version `$version` in URL does not start with prefix `$VERSION_PREFIX`"
     val modelSemanticVersion = version.drop(VERSION_PREFIX_LENGTH)
-    val metaModelVersion = getResolvedVersionAux(mainMeta)
+    val metaModelVersion = getResolvedVersionAux(metaModel)
     return when (metaModelVersion.validateModelSemanticVersion(modelSemanticVersion)) {
         SemanticVersionError.INVALID -> "Version `$version` in URL is not a valid semantic version"
         SemanticVersionError.HIGHER_THAN_SUPPORTED -> "Version `$version` in URL is higher than supported version `$VERSION_PREFIX${metaModelVersion.semantic}`"

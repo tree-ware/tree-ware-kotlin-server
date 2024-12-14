@@ -5,7 +5,7 @@ import io.mockk.mockk
 import io.mockk.verifyOrder
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
 import org.treeWare.metaModel.aux.MetaModelAuxPlugin
-import org.treeWare.model.AddressBookMutableMainModelFactory
+import org.treeWare.model.AddressBookMutableEntityModelFactory
 import org.treeWare.model.decoder.stateMachine.StringAuxStateMachine
 import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.Response
@@ -25,7 +25,7 @@ class TreeWareServerMetaModelAuxPluginTests {
         // Create the server.
         TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             listOf(validMetaModelAuxPlugin),
             emptyList(),
@@ -56,7 +56,7 @@ class TreeWareServerMetaModelAuxPluginTests {
         assertFailsWith<IllegalArgumentException>("Meta-model has plugin validation errors") {
             TreeWareServer(
                 ADDRESS_BOOK_META_MODEL_FILES,
-                AddressBookMutableMainModelFactory,
+                AddressBookMutableEntityModelFactory,
                 false,
                 listOf(invalidMetaModelAuxPlugin),
                 emptyList(),

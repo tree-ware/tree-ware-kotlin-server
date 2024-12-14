@@ -7,11 +7,10 @@ import io.ktor.server.testing.*
 import io.mockk.*
 import okio.Buffer
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
-import org.treeWare.metaModel.addressBookMetaModel
-import org.treeWare.model.AddressBookMutableMainModelFactory
+import org.treeWare.model.AddressBookMutableEntityModelFactory
+import org.treeWare.model.decodeJsonStringIntoEntity
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.encodeJson
-import org.treeWare.model.getMainModelFromJsonString
 import org.treeWare.model.operator.ElementModelError
 import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.Response
@@ -29,7 +28,7 @@ class TreeWareModuleGetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),
@@ -70,7 +69,7 @@ class TreeWareModuleGetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),
@@ -112,7 +111,7 @@ class TreeWareModuleGetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),
@@ -156,7 +155,7 @@ class TreeWareModuleGetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),
@@ -206,13 +205,14 @@ class TreeWareModuleGetTests {
     @Test
     fun `Model returned by getter must be returned as get-response`() {
         val expectedResponseJson = readFile("model/address_book_1.json")
-        val expectedResponse = getMainModelFromJsonString(addressBookMetaModel, expectedResponseJson)
+        val expectedResponse = AddressBookMutableEntityModelFactory.create()
+        decodeJsonStringIntoEntity(expectedResponseJson, entity = expectedResponse)
         val getter = mockk<Getter>()
         every { getter.invoke(ofType()) } returns Response.Model(expectedResponse)
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),

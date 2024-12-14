@@ -9,7 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
-import org.treeWare.model.AddressBookMutableMainModelFactory
+import org.treeWare.model.AddressBookMutableEntityModelFactory
 import org.treeWare.model.assertMatchesJsonString
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.MultiAuxEncoder
@@ -37,7 +37,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
@@ -93,7 +93,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
@@ -147,7 +147,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),

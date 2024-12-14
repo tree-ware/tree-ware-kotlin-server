@@ -8,7 +8,7 @@ import io.mockk.called
 import io.mockk.mockk
 import io.mockk.verify
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
-import org.treeWare.model.AddressBookMutableMainModelFactory
+import org.treeWare.model.AddressBookMutableEntityModelFactory
 import org.treeWare.model.operator.Response
 import org.treeWare.server.TEST_AUTHENTICATION_PROVIDER_NAME
 import org.treeWare.server.addValidApiKeyHeader
@@ -28,7 +28,7 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),
@@ -62,7 +62,7 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),
@@ -103,7 +103,7 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),
@@ -144,7 +144,7 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),
@@ -189,7 +189,7 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),
@@ -223,7 +223,7 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),
@@ -264,7 +264,7 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),
@@ -305,7 +305,7 @@ class TreeWareModuleVersionTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),

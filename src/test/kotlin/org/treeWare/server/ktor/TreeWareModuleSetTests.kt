@@ -6,12 +6,11 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.mockk.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
-import org.treeWare.metaModel.addressBookMetaModel
-import org.treeWare.model.AddressBookMutableMainModelFactory
+import org.treeWare.model.AddressBookMutableEntityModelFactory
 import org.treeWare.model.assertMatchesJsonString
+import org.treeWare.model.decodeJsonStringIntoEntity
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.encoder.MultiAuxEncoder
-import org.treeWare.model.getMainModelFromJsonString
 import org.treeWare.model.operator.ElementModelError
 import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.Response
@@ -35,7 +34,7 @@ class TreeWareModuleSetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             emptyList(),
@@ -76,7 +75,7 @@ class TreeWareModuleSetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
@@ -125,7 +124,7 @@ class TreeWareModuleSetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
@@ -197,7 +196,7 @@ class TreeWareModuleSetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
@@ -242,7 +241,7 @@ class TreeWareModuleSetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
@@ -285,7 +284,8 @@ class TreeWareModuleSetTests {
     @Test
     fun `Error model returned by setter must be returned in set-response`() {
         val errorJson = readFile("model/address_book_1.json")
-        val errorModel = getMainModelFromJsonString(addressBookMetaModel, errorJson)
+        val errorModel = AddressBookMutableEntityModelFactory.create()
+        decodeJsonStringIntoEntity(errorJson, entity = errorModel)
 
         val setter = mockk<Setter>()
         every { setter.invoke(ofType()) } returns Response.ErrorModel(ErrorCode.CLIENT_ERROR, errorModel)
@@ -301,7 +301,7 @@ class TreeWareModuleSetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableMainModelFactory,
+            AddressBookMutableEntityModelFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),

@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 // conveys this.
 allprojects {
     group = "org.tree-ware.tree-ware-kotlin-server"
-    version = "0.3.0.0-SNAPSHOT"
+    version = "0.3.0.0"
 }
 
 val ktorApiKeyVersion = "1.1.0"

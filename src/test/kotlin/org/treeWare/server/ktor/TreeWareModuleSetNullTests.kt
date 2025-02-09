@@ -9,7 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
-import org.treeWare.model.AddressBookMutableEntityModelFactory
+import org.treeWare.metaModel.addressBookRootEntityFactory
 import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.Response
 import org.treeWare.model.operator.set.aux.SetAuxPlugin
@@ -36,7 +36,7 @@ class TreeWareModuleSetNullTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableEntityModelFactory,
+            ::addressBookRootEntityFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
@@ -84,7 +84,7 @@ class TreeWareModuleSetNullTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableEntityModelFactory,
+            ::addressBookRootEntityFactory,
             false,
             emptyList(),
             listOf(SetAuxPlugin()),

@@ -6,10 +6,9 @@ import org.lighthousegames.logging.logging
 import org.treeWare.metaModel.aux.MetaModelAuxPlugin
 import org.treeWare.metaModel.getMetaModelName
 import org.treeWare.metaModel.newMetaModelFromJsonFiles
+import org.treeWare.model.core.EntityFactory
 import org.treeWare.model.core.EntityModel
 import org.treeWare.model.core.MutableEntityModel
-import org.treeWare.model.core.MutableEntityModelFactory
-import org.treeWare.model.core.defaultRootEntityFactory
 import org.treeWare.model.decoder.decodeJsonEntity
 import org.treeWare.model.decoder.stateMachine.MultiAuxDecodingStateMachineFactory
 import org.treeWare.model.encoder.MultiAuxEncoder
@@ -32,7 +31,7 @@ typealias Getter = (request: EntityModel) -> Response
 
 class TreeWareServer(
     metaModelFiles: List<String>,
-    private val mutableEntityModelFactory: MutableEntityModelFactory,
+    private val rootEntityFactory: EntityFactory,
     logMetaModelFullNames: Boolean,
     metaModelAuxPlugins: List<MetaModelAuxPlugin>,
     modelAuxPlugins: List<MetaModelAuxPlugin>,
@@ -53,7 +52,7 @@ class TreeWareServer(
     init {
         logger.info { "Meta-model files: $metaModelFiles" }
         metaModel = newMetaModelFromJsonFiles(
-            metaModelFiles, logMetaModelFullNames, hasher, cipher, ::defaultRootEntityFactory, metaModelAuxPlugins, true
+            metaModelFiles, logMetaModelFullNames, hasher, cipher, rootEntityFactory, metaModelAuxPlugins, true
         ).metaModel ?: throw IllegalArgumentException("Meta-model has validation errors")
 
         modelMultiAuxDecodingStateMachineFactory =
@@ -72,7 +71,7 @@ class TreeWareServer(
     }
 
     fun set(principal: Principal?, request: BufferedSource): Response {
-        val setRequest = mutableEntityModelFactory.create()
+        val setRequest = rootEntityFactory(null)
         val decodeErrors = decodeJsonEntity(
             request,
             setRequest,
@@ -93,7 +92,7 @@ class TreeWareServer(
             ErrorCode.SERVER_ERROR,
             listOf(ElementModelError("/", "Unable to authorize the request"))
         )
-        return when (val permittedSetRequest = permitSet(setRequest, rbac, mutableEntityModelFactory)) {
+        return when (val permittedSetRequest = permitSet(setRequest, rbac, rootEntityFactory)) {
             is FullyPermitted -> setter(permittedSetRequest.permitted)
             // TODO(#40): return errors that indicate which parts are not permitted
             is PartiallyPermitted -> Response.ErrorList(
@@ -109,7 +108,7 @@ class TreeWareServer(
     }
 
     fun get(principal: Principal?, request: BufferedSource): Response {
-        val getRequest = mutableEntityModelFactory.create()
+        val getRequest = rootEntityFactory(null)
         val decodeErrors = decodeJsonEntity(
             request,
             getRequest,
@@ -127,7 +126,7 @@ class TreeWareServer(
             ErrorCode.SERVER_ERROR,
             listOf(ElementModelError("/", "Unable to authorize the request"))
         )
-        return when (val permittedGetRequest = permitGet(getRequest, rbac, mutableEntityModelFactory)) {
+        return when (val permittedGetRequest = permitGet(getRequest, rbac, rootEntityFactory)) {
             is FullyPermitted -> getWithPermittedRequest(permittedGetRequest.permitted, rbac)
             // TODO(#40): return errors that indicate which parts are not permitted
             is PartiallyPermitted -> Response.ErrorList(
@@ -145,10 +144,10 @@ class TreeWareServer(
     private fun getWithPermittedRequest(permittedGetRequest: EntityModel, rbac: EntityModel): Response {
         return when (val getterResponse = getter(permittedGetRequest)) {
             is Response.Model -> when (val permittedGetResponse =
-                permitGet(getterResponse.model, rbac, mutableEntityModelFactory)) {
+                permitGet(getterResponse.model, rbac, rootEntityFactory)) {
                 is FullyPermitted -> Response.Model(permittedGetResponse.permitted)
                 is PartiallyPermitted -> Response.Model(permittedGetResponse.permitted)
-                NotPermitted -> Response.Model(mutableEntityModelFactory.create())
+                NotPermitted -> Response.Model(rootEntityFactory(null))
             }
 
             else -> getterResponse

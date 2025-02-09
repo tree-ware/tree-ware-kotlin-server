@@ -4,7 +4,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
-import org.treeWare.model.AddressBookMutableEntityModelFactory
+import org.treeWare.metaModel.addressBookRootEntityFactory
 import org.treeWare.model.operator.ErrorCode
 import org.treeWare.model.operator.Response
 import org.treeWare.server.*
@@ -18,7 +18,7 @@ class TreeWareModuleAuthenticationTests {
         val treeWareServer =
             TreeWareServer(
                 ADDRESS_BOOK_META_MODEL_FILES,
-                AddressBookMutableEntityModelFactory,
+                ::addressBookRootEntityFactory,
                 false,
                 emptyList(),
                 emptyList(),

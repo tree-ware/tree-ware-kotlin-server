@@ -7,11 +7,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.treeWare.metaModel.ADDRESS_BOOK_META_MODEL_FILES
-import org.treeWare.model.AddressBookMutableEntityModelFactory
+import org.treeWare.metaModel.addressBookRootEntityFactory
 import org.treeWare.model.assertMatchesJsonString
 import org.treeWare.model.encoder.EncodePasswords
 import org.treeWare.model.operator.Response
-import org.treeWare.model.operator.logModel
 import org.treeWare.server.TEST_AUTHENTICATION_PROVIDER_NAME
 import org.treeWare.server.addValidApiKeyHeader
 import org.treeWare.server.addressBookPermitAllRbacGetter
@@ -21,7 +20,7 @@ import org.treeWare.server.installTestAuthentication
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private val testResponse = Response.Model(AddressBookMutableEntityModelFactory.create())
+private val testResponse = Response.Model(addressBookRootEntityFactory(null))
 
 class TreeWareModuleSubTreeGranularityGetTests {
     @Test
@@ -55,7 +54,7 @@ class TreeWareModuleSubTreeGranularityGetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableEntityModelFactory,
+            ::addressBookRootEntityFactory,
             false,
             emptyList(),
             emptyList(),
@@ -100,7 +99,7 @@ class TreeWareModuleSubTreeGranularityGetTests {
 
         val treeWareServer = TreeWareServer(
             ADDRESS_BOOK_META_MODEL_FILES,
-            AddressBookMutableEntityModelFactory,
+            ::addressBookRootEntityFactory,
             false,
             emptyList(),
             emptyList(),

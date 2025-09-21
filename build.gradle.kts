@@ -4,17 +4,17 @@
 // conveys this.
 allprojects {
     group = "org.tree-ware.tree-ware-kotlin-server"
-    version = "0.5.0.0"
+    version = "0.5.0.1"
 }
 
 val ktorVersion = "3.1.1"
+val log4j2Version = "2.19.0"
 val mockkVersion = "1.12.0"
-val slf4jSimpleVersion = "2.0.17"
 
 plugins {
     kotlin("jvm") version "2.1.10"
     id("idea")
-    id("org.tree-ware.core") version "0.5.0.0"
+    id("org.tree-ware.core") version "0.5.1.0"
     id("java-library")
     id("maven-publish")
 }
@@ -38,7 +38,8 @@ dependencies {
     testImplementation("io.ktor:ktor-client-core:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("org.slf4j:slf4j-simple:$slf4jSimpleVersion")
+    testImplementation("org.apache.logging.log4j:log4j-core:${log4j2Version}")
+    testImplementation("org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}")
     testImplementation(kotlin("test"))
 }
 

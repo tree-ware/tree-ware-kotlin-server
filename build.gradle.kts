@@ -4,7 +4,7 @@
 // conveys this.
 allprojects {
     group = "org.tree-ware.tree-ware-kotlin-server"
-    version = "0.5.0.1"
+    version = "0.5.1.0"
 }
 
 val ktorVersion = "3.1.1"
@@ -29,7 +29,8 @@ dependencies {
 
     implementation(kotlin("stdlib"))
 
-    implementation("io.ktor:ktor-server-auth:$ktorVersion")
+    api("io.ktor:ktor-server-auth:$ktorVersion")
+    api("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
     implementation("io.ktor:ktor-server-default-headers:$ktorVersion")

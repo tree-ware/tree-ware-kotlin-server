@@ -58,7 +58,7 @@ class TreeWareModuleSubTreeGranularityGetTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter
@@ -103,7 +103,7 @@ class TreeWareModuleSubTreeGranularityGetTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter

@@ -32,7 +32,7 @@ class TreeWareModuleGetTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter
@@ -73,7 +73,7 @@ class TreeWareModuleGetTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitNoneRbacGetter,
             { Response.Success },
             getter
@@ -115,7 +115,7 @@ class TreeWareModuleGetTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitClarkKentRbacGetter,
             { Response.Success },
             getter
@@ -159,7 +159,7 @@ class TreeWareModuleGetTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter
@@ -216,7 +216,7 @@ class TreeWareModuleGetTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter

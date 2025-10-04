@@ -32,7 +32,7 @@ class TreeWareModuleVersionTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter
@@ -66,7 +66,7 @@ class TreeWareModuleVersionTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter
@@ -107,7 +107,7 @@ class TreeWareModuleVersionTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter
@@ -148,7 +148,7 @@ class TreeWareModuleVersionTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter
@@ -193,7 +193,7 @@ class TreeWareModuleVersionTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter
@@ -227,7 +227,7 @@ class TreeWareModuleVersionTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter
@@ -268,7 +268,7 @@ class TreeWareModuleVersionTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter
@@ -309,7 +309,7 @@ class TreeWareModuleVersionTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success },
             getter

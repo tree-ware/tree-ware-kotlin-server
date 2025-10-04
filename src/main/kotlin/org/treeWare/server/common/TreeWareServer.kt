@@ -18,7 +18,7 @@ import org.treeWare.model.operator.rbac.NotPermitted
 import org.treeWare.model.operator.rbac.PartiallyPermitted
 
 /** Perform initialization before the server starts serving. */
-typealias Initializer = (metaModel: EntityModel) -> Unit
+typealias Initializer = (metaModel: EntityModel) -> Response
 
 /** Return the RBAC model for the logged-in user. */
 typealias RbacGetter = (principal: Principal?, metaModel: EntityModel) -> EntityModel?
@@ -66,8 +66,8 @@ class TreeWareServer(
         val metaName = getMetaModelName(metaModel)
         logger.info { "Meta-model name: $metaName" }
         logger.info { "Calling initializer" }
-        initializer(metaModel)
-        logger.info { "tree-ware server started" }
+        val initializerResponse = initializer(metaModel)
+        if (!initializerResponse.isOk()) throw IllegalStateException("Initializer failed: $initializerResponse")
     }
 
     fun set(principal: Principal?, request: BufferedSource): Response {

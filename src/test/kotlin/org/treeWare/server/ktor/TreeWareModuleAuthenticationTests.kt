@@ -22,7 +22,7 @@ class TreeWareModuleAuthenticationTests {
                 false,
                 emptyList(),
                 emptyList(),
-                {},
+                { Response.Success },
                 ::addressBookPermitAllRbacGetter,
                 { Response.Success }) {
                 Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList())

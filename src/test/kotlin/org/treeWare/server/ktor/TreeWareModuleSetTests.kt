@@ -38,7 +38,7 @@ class TreeWareModuleSetTests {
             false,
             emptyList(),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             setter
         ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
@@ -79,7 +79,7 @@ class TreeWareModuleSetTests {
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
-            {},
+            { Response.Success },
             ::addressBookPermitNoneRbacGetter,
             setter
         ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
@@ -126,7 +126,7 @@ class TreeWareModuleSetTests {
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
-            {},
+            { Response.Success },
             ::addressBookPermitClarkKentRbacGetter,
             setter
         ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
@@ -194,7 +194,7 @@ class TreeWareModuleSetTests {
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             setter
         ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
@@ -237,7 +237,7 @@ class TreeWareModuleSetTests {
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             setter
         ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
@@ -295,7 +295,7 @@ class TreeWareModuleSetTests {
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             setter
         ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }

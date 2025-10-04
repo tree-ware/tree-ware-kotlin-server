@@ -29,7 +29,7 @@ class TreeWareServerMetaModelAuxPluginTests {
             false,
             listOf(validMetaModelAuxPlugin),
             emptyList(),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             { Response.Success }) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
 
@@ -53,14 +53,14 @@ class TreeWareServerMetaModelAuxPluginTests {
         every { invalidMetaModelAuxPlugin.validate(ofType()) } returns listOf("Error in invalid_test_aux")
 
         // Create the server.
-        assertFailsWith<IllegalArgumentException>("Meta-model has plugin validation errors") {
+        assertFailsWith<IllegalArgumentException> {
             TreeWareServer(
                 ADDRESS_BOOK_META_MODEL_FILES,
                 ::addressBookRootEntityFactory,
                 false,
                 listOf(invalidMetaModelAuxPlugin),
                 emptyList(),
-                {},
+                { Response.Success },
                 ::addressBookPermitAllRbacGetter,
                 { Response.Success }) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
         }

@@ -41,7 +41,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             setter
         ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
@@ -95,7 +95,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             setter
         ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
@@ -147,7 +147,7 @@ class TreeWareModuleSubTreeGranularityDeleteTests {
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             setter
         ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }

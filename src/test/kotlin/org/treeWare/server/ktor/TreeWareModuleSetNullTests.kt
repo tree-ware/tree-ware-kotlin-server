@@ -40,7 +40,7 @@ class TreeWareModuleSetNullTests {
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             setter
         ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
@@ -88,7 +88,7 @@ class TreeWareModuleSetNullTests {
             false,
             emptyList(),
             listOf(SetAuxPlugin()),
-            {},
+            { Response.Success },
             ::addressBookPermitAllRbacGetter,
             setter
         ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }

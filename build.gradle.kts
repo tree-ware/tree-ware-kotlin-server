@@ -4,7 +4,7 @@
 // conveys this.
 allprojects {
     group = "org.tree-ware.tree-ware-kotlin-server"
-    version = "0.6.0.0"
+    version = "0.6.1.0"
 }
 
 val ktorVersion = "3.1.1"
@@ -14,7 +14,7 @@ val mockkVersion = "1.12.0"
 plugins {
     kotlin("jvm") version "2.1.10"
     id("idea")
-    id("org.tree-ware.core") version "0.5.2.0"
+    id("org.tree-ware.core") version "0.6.0.0"
     id("java-library")
     id("maven-publish")
 }

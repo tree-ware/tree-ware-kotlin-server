@@ -42,8 +42,9 @@ class TreeWareModuleSetNullTests {
             listOf(SetAuxPlugin()),
             { Response.Success },
             ::addressBookPermitAllRbacGetter,
-            setter
-        ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+            setter,
+            { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+        )
         testApplication {
             application {
                 installTestAuthentication()
@@ -90,8 +91,9 @@ class TreeWareModuleSetNullTests {
             listOf(SetAuxPlugin()),
             { Response.Success },
             ::addressBookPermitAllRbacGetter,
-            setter
-        ) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+            setter,
+            { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+        )
         testApplication {
             application {
                 installTestAuthentication()

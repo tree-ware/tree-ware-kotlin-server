@@ -24,9 +24,9 @@ class TreeWareModuleAuthenticationTests {
                 emptyList(),
                 { Response.Success },
                 ::addressBookPermitAllRbacGetter,
-                { Response.Success }) {
-                Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList())
-            }
+                { Response.Success },
+                { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+            )
         testApplication {
             application {
                 installTestAuthentication()

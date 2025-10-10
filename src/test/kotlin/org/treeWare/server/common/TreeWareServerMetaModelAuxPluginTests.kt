@@ -31,7 +31,9 @@ class TreeWareServerMetaModelAuxPluginTests {
             emptyList(),
             { Response.Success },
             ::addressBookPermitAllRbacGetter,
-            { Response.Success }) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+            { Response.Success },
+            { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+        )
 
         // TODO(deepak-nulu): change this to verifySequence. Currently auxName
         // and auxDecodingStateMachineFactory get called multiple times. This
@@ -62,7 +64,9 @@ class TreeWareServerMetaModelAuxPluginTests {
                 emptyList(),
                 { Response.Success },
                 ::addressBookPermitAllRbacGetter,
-                { Response.Success }) { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+                { Response.Success },
+                { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+            )
         }
 
         // TODO(deepak-nulu): change this to verifySequence. See TODO above for details.

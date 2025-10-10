@@ -24,9 +24,9 @@ class TreeWareServerInitializerTests {
             emptyList(),
             initializer,
             ::addressBookPermitAllRbacGetter,
-            { Response.Success }) {
-            Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList())
-        }
+            { Response.Success },
+            { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+        )
         verify { initializer.invoke(ofType()) }
     }
 
@@ -43,9 +43,9 @@ class TreeWareServerInitializerTests {
                 emptyList(),
                 initializer,
                 ::addressBookPermitAllRbacGetter,
-                { Response.Success }) {
-                Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList())
-            }
+                { Response.Success },
+                { Response.ErrorList(ErrorCode.CLIENT_ERROR, emptyList()) }
+            )
         }
     }
 }

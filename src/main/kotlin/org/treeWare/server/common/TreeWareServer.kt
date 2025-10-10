@@ -24,7 +24,7 @@ typealias Initializer = (metaModel: EntityModel) -> Response
 typealias RbacGetter = (principal: Principal?, metaModel: EntityModel) -> EntityModel?
 
 /** Set the model and returns errors if any. */
-typealias Setter = (model: MutableEntityModel) -> Response
+typealias Setter = (model: EntityModel) -> Response
 
 /** Return the requested model or errors if any. */
 typealias Getter = (request: EntityModel) -> Response
@@ -38,7 +38,8 @@ class TreeWareServer(
     initializer: Initializer,
     private val rbacGetter: RbacGetter,
     private val setter: Setter,
-    private val getter: Getter
+    private val getter: Getter,
+    private val businessLogicFunctions: List<BusinessLogicFunction> = emptyList()
 ) {
     val metaModel: EntityModel
 
@@ -87,12 +88,21 @@ class TreeWareServer(
         val validationErrors = validateSet(setRequest)
         if (validationErrors.isNotEmpty()) return Response.ErrorList(ErrorCode.CLIENT_ERROR, validationErrors)
         val granularityErrors = populateSubTreeGranularityDeleteRequest(setRequest)
+
+        val businessLogicResponse = invokeBusinessLogic(setRequest)
+        val updatedSetRequest = when (businessLogicResponse) {
+            is Response.ErrorList -> return businessLogicResponse
+            is Response.ErrorModel -> return businessLogicResponse
+            is Response.Model -> businessLogicResponse.model
+            Response.Success -> setRequest
+        }
+
         if (granularityErrors.isNotEmpty()) return Response.ErrorList(ErrorCode.CLIENT_ERROR, granularityErrors)
         val rbac = rbacGetter(principal, metaModel) ?: return Response.ErrorList(
             ErrorCode.SERVER_ERROR,
             listOf(ElementModelError("/", "Unable to authorize the request"))
         )
-        return when (val permittedSetRequest = permitSet(setRequest, rbac, rootEntityFactory)) {
+        return when (val permittedSetRequest = permitSet(updatedSetRequest, rbac, rootEntityFactory)) {
             is FullyPermitted -> setter(permittedSetRequest.permitted)
             // TODO(#40): return errors that indicate which parts are not permitted
             is PartiallyPermitted -> Response.ErrorList(
@@ -105,6 +115,27 @@ class TreeWareServer(
                 listOf(ElementModelError("", "Unauthorized for all parts of the request"))
             )
         }
+    }
+
+    private fun invokeBusinessLogic(setRequest: MutableEntityModel): Response {
+        val updatedSetRequest = setRequest
+        // TODO(#74): Merge business-logic input trees for efficient handling of set-requests
+        // TODO: run the business-logic functions in parallel.
+        for (businessLogicFunction in businessLogicFunctions) {
+            // TODO(#76): Return a server error if the output does not conform to the registered output
+            val output = businessLogicFunction.invoke(setRequest)
+            when (output) {
+                is Response.ErrorList -> return output
+                is Response.ErrorModel -> return output
+                is Response.Success -> continue
+                is Response.Model -> {
+                    logger.error { "handling of business-logic function output is not yet implemented" }
+                    return Response.ErrorList(ErrorCode.SERVER_ERROR, emptyList())
+                    // TODO: update the set-request with `output.model` instead of logging/returning the above error.
+                }
+            }
+        }
+        return Response.Model(updatedSetRequest)
     }
 
     fun get(principal: Principal?, request: BufferedSource): Response {
